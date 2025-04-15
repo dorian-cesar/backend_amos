@@ -1,0 +1,9 @@
+Estructura del proyecto:
+
+    Configuración centralizada en transbankConfig.js
+
+    Controladores separados para pagos y terminal
+
+    Servicio principal en transbankService.js
+
+    Utilidades para manejo de POS, respuestas y logs

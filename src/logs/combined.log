@@ -1,3 +1,8 @@
 2025-04-15 12:24:41 [[32minfo[39m]: Servidor Transbank POS corriendo en modo development
 2025-04-15 12:24:41 [[32minfo[39m]: Escuchando en puerto 3000
 2025-04-15 12:24:41 [[32minfo[39m]: Configuración Commerce Code: undefined
+2025-04-15 12:43:24 [[32minfo[39m]: SIGINT recibido. Cerrando servidor...
+{"level":"info","message":"Servidor Transbank POS corriendo en modo development","timestamp":"2025-04-15 13:33:56"}
+{"level":"info","message":"Escuchando en puerto 3000","timestamp":"2025-04-15 13:33:56"}
+{"level":"info","message":"Configuración Commerce Code: undefined","timestamp":"2025-04-15 13:33:56"}
+{"level":"info","message":"SIGINT recibido. Cerrando servidor...","timestamp":"2025-04-15 14:32:12"}

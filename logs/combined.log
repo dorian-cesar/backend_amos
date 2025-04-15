@@ -1,0 +1,89 @@
+{"level":"info","message":"Iniciando servidor en modo development","timestamp":"2025-04-15 15:19:26"}
+{"level":"info","message":"Servidor Transbank POS escuchando en puerto 3000","timestamp":"2025-04-15 15:19:26"}
+{"level":"info","message":"Commerce Code: tu_codigo_comercio","timestamp":"2025-04-15 15:19:26"}
+{"level":"info","message":"Terminal ID: tu_terminal_id","timestamp":"2025-04-15 15:19:26"}
+{"level":"error","message":"Error al abrir puerto serial /dev/ttyUSB0: Error: No such file or directory, cannot open /dev/ttyUSB0","stack":"Error: Error: No such file or directory, cannot open /dev/ttyUSB0","timestamp":"2025-04-15 15:19:26"}
+{"level":"error","message":"Error al inicializar conexión: Error: No such file or directory, cannot open /dev/ttyUSB0","stack":"Error: Error: No such file or directory, cannot open /dev/ttyUSB0","timestamp":"2025-04-15 15:19:26"}
+{"level":"error","message":"Error al abrir puerto serial /dev/ttyUSB0: Error: No such file or directory, cannot open /dev/ttyUSB0","stack":"Error: Error: No such file or directory, cannot open /dev/ttyUSB0","timestamp":"2025-04-15 15:19:26"}
+{"level":"error","message":"Error al inicializar conexión: Error: No such file or directory, cannot open /dev/ttyUSB0","stack":"Error: Error: No such file or directory, cannot open /dev/ttyUSB0","timestamp":"2025-04-15 15:19:26"}
+{"level":"error","message":"No se pudo conectar con el POS","timestamp":"2025-04-15 15:19:26"}
+{"level":"info","message":"GET /","timestamp":"2025-04-15 15:19:55"}
+{"level":"info","message":"POST /api/payment/init","timestamp":"2025-04-15 15:20:04"}
+{"level":"info","message":"GET /api/","timestamp":"2025-04-15 15:22:22"}
+{"level":"info","message":"GET /api/payment","timestamp":"2025-04-15 15:24:16"}
+{"level":"info","message":"POST /api/payment","timestamp":"2025-04-15 15:25:15"}
+{"level":"info","message":"Iniciando transacción - Monto: 10000, Ticket: TEST-001","timestamp":"2025-04-15 15:25:15"}
+{"level":"warn","message":"Modo simulación: Comando enviado a POS virtual","timestamp":"2025-04-15 15:25:15"}
+{"level":"info","message":"Transacción exitosa - Operación: 000944","timestamp":"2025-04-15 15:25:15"}
+{"level":"error","message":"Error en transacción: responseHandler.success is not a function","stack":"TypeError: responseHandler.success is not a function\n    at exports.processPayment (/opt/lampp/htdocs/backTransbank/src/controllers/paymentController.js:27:21)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-04-15 15:25:15"}
+{"body":{"amount":10000,"ticketNumber":"TEST-001"},"level":"error","message":"responseHandler.error is not a function","stack":"TypeError: responseHandler.error is not a function\n    at exports.processPayment (/opt/lampp/htdocs/backTransbank/src/controllers/paymentController.js:30:21)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-04-15 15:25:15","url":"/api/payment"}
+{"level":"info","message":"POST /api/payment","timestamp":"2025-04-15 16:48:27"}
+{"level":"info","message":"Iniciando transacción - Monto: 10000, Ticket: TEST-001","timestamp":"2025-04-15 16:48:27"}
+{"level":"warn","message":"Modo simulación: Comando enviado a POS virtual","timestamp":"2025-04-15 16:48:27"}
+{"level":"info","message":"Transacción exitosa - Operación: 000682","timestamp":"2025-04-15 16:48:27"}
+{"level":"error","message":"Error en transacción: responseHandler.success is not a function","stack":"TypeError: responseHandler.success is not a function\n    at exports.processPayment (/opt/lampp/htdocs/backTransbank/src/controllers/paymentController.js:27:21)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-04-15 16:48:27"}
+{"body":{"amount":10000,"ticketNumber":"TEST-001"},"level":"error","message":"responseHandler.error is not a function","stack":"TypeError: responseHandler.error is not a function\n    at exports.processPayment (/opt/lampp/htdocs/backTransbank/src/controllers/paymentController.js:30:21)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-04-15 16:48:27","url":"/api/payment"}
+{"level":"info","message":"Recibida señal SIGINT. Cerrando servidor...","timestamp":"2025-04-15 16:48:42"}
+{"level":"info","message":"Iniciando servidor en modo development","timestamp":"2025-04-15 16:48:52"}
+{"level":"info","message":"Servidor Transbank POS escuchando en puerto 3000","timestamp":"2025-04-15 16:48:52"}
+{"level":"info","message":"Commerce Code: tu_codigo_comercio","timestamp":"2025-04-15 16:48:52"}
+{"level":"info","message":"Terminal ID: tu_terminal_id","timestamp":"2025-04-15 16:48:52"}
+{"level":"error","message":"Error al abrir puerto serial /dev/ttyUSB0: Error: No such file or directory, cannot open /dev/ttyUSB0","stack":"Error: Error: No such file or directory, cannot open /dev/ttyUSB0","timestamp":"2025-04-15 16:48:52"}
+{"level":"error","message":"Error al inicializar conexión: Error: No such file or directory, cannot open /dev/ttyUSB0","stack":"Error: Error: No such file or directory, cannot open /dev/ttyUSB0","timestamp":"2025-04-15 16:48:52"}
+{"level":"error","message":"Error al abrir puerto serial /dev/ttyUSB0: Error: No such file or directory, cannot open /dev/ttyUSB0","stack":"Error: Error: No such file or directory, cannot open /dev/ttyUSB0","timestamp":"2025-04-15 16:48:52"}
+{"level":"error","message":"Error al inicializar conexión: Error: No such file or directory, cannot open /dev/ttyUSB0","stack":"Error: Error: No such file or directory, cannot open /dev/ttyUSB0","timestamp":"2025-04-15 16:48:52"}
+{"level":"error","message":"No se pudo conectar con el POS","timestamp":"2025-04-15 16:48:52"}
+{"level":"info","message":"POST /api/payment","timestamp":"2025-04-15 16:48:57"}
+{"level":"info","message":"Iniciando transacción - Monto: 10000, Ticket: TEST-001","timestamp":"2025-04-15 16:48:57"}
+{"level":"warn","message":"Modo simulación: Comando enviado a POS virtual","timestamp":"2025-04-15 16:48:57"}
+{"level":"info","message":"Transacción exitosa - Operación: 000118","timestamp":"2025-04-15 16:48:57"}
+{"level":"error","message":"Error en transacción: responseHandler.success is not a function","stack":"TypeError: responseHandler.success is not a function\n    at exports.processPayment (/opt/lampp/htdocs/backTransbank/src/controllers/paymentController.js:27:21)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-04-15 16:48:57"}
+{"body":{"amount":10000,"ticketNumber":"TEST-001"},"level":"error","message":"responseHandler.error is not a function","stack":"TypeError: responseHandler.error is not a function\n    at exports.processPayment (/opt/lampp/htdocs/backTransbank/src/controllers/paymentController.js:30:21)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-04-15 16:48:57","url":"/api/payment"}
+{"level":"info","message":"POST /api/payment","timestamp":"2025-04-15 16:50:21"}
+{"level":"info","message":"Iniciando transacción - Monto: 15000, Ticket: TEST-002","timestamp":"2025-04-15 16:50:21"}
+{"level":"warn","message":"Modo simulación: Comando enviado a POS virtual","timestamp":"2025-04-15 16:50:21"}
+{"level":"info","message":"Transacción exitosa - Operación: 000914","timestamp":"2025-04-15 16:50:21"}
+{"level":"error","message":"Error en transacción: responseHandler.success is not a function","stack":"TypeError: responseHandler.success is not a function\n    at exports.processPayment (/opt/lampp/htdocs/backTransbank/src/controllers/paymentController.js:27:21)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-04-15 16:50:21"}
+{"body":{"amount":15000,"ticketNumber":"TEST-002"},"level":"error","message":"responseHandler.error is not a function","stack":"TypeError: responseHandler.error is not a function\n    at exports.processPayment (/opt/lampp/htdocs/backTransbank/src/controllers/paymentController.js:30:21)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-04-15 16:50:21","url":"/api/payment"}
+{"level":"info","message":"Recibida señal SIGINT. Cerrando servidor...","timestamp":"2025-04-15 16:51:03"}
+{"level":"warn","message":"Modo desarrollo: Simulando conexión con POS","timestamp":"2025-04-15 16:51:06"}
+{"level":"info","message":"Iniciando servidor en modo development","timestamp":"2025-04-15 16:51:06"}
+{"level":"warn","message":"Modo desarrollo: Simulando conexión con POS","timestamp":"2025-04-15 16:51:06"}
+{"level":"info","message":"Servidor Transbank POS escuchando en puerto 3000","timestamp":"2025-04-15 16:51:06"}
+{"level":"info","message":"Commerce Code: tu_codigo_comercio","timestamp":"2025-04-15 16:51:06"}
+{"level":"info","message":"Terminal ID: tu_terminal_id","timestamp":"2025-04-15 16:51:06"}
+{"level":"warn","message":"ADVERTENCIA: El sistema está en modo simulación","timestamp":"2025-04-15 16:51:06"}
+{"level":"warn","message":"Para conectar con un POS real, establezca FORCE_HARDWARE_CONNECTION=true","timestamp":"2025-04-15 16:51:06"}
+{"level":"info","message":"Conexión con POS establecida correctamente","timestamp":"2025-04-15 16:51:06"}
+{"level":"info","message":"POST /api/payment","timestamp":"2025-04-15 16:51:15"}
+{"level":"info","message":"Iniciando transacción - Monto: 15000, Ticket: TEST-002","timestamp":"2025-04-15 16:51:15"}
+{"level":"warn","message":"Modo simulación: Comando enviado a POS virtual","timestamp":"2025-04-15 16:51:15"}
+{"level":"info","message":"Transacción exitosa - Operación: 000437","timestamp":"2025-04-15 16:51:15"}
+{"level":"error","message":"Error en transacción: responseHandler.success is not a function","stack":"TypeError: responseHandler.success is not a function\n    at exports.processPayment (/opt/lampp/htdocs/backTransbank/src/controllers/paymentController.js:27:21)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-04-15 16:51:15"}
+{"body":{"amount":15000,"ticketNumber":"TEST-002"},"level":"error","message":"responseHandler.error is not a function","stack":"TypeError: responseHandler.error is not a function\n    at exports.processPayment (/opt/lampp/htdocs/backTransbank/src/controllers/paymentController.js:30:21)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-04-15 16:51:15","url":"/api/payment"}
+{"level":"info","message":"POST /api/payment","timestamp":"2025-04-15 16:51:36"}
+{"level":"info","message":"Iniciando transacción - Monto: 15000, Ticket: TEST-002","timestamp":"2025-04-15 16:51:36"}
+{"level":"warn","message":"Modo simulación: Comando enviado a POS virtual","timestamp":"2025-04-15 16:51:36"}
+{"level":"info","message":"Transacción exitosa - Operación: 000911","timestamp":"2025-04-15 16:51:36"}
+{"level":"error","message":"Error en transacción: responseHandler.success is not a function","stack":"TypeError: responseHandler.success is not a function\n    at exports.processPayment (/opt/lampp/htdocs/backTransbank/src/controllers/paymentController.js:27:21)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-04-15 16:51:36"}
+{"body":{"amount":15000,"ticketNumber":"TEST-002"},"level":"error","message":"responseHandler.error is not a function","stack":"TypeError: responseHandler.error is not a function\n    at exports.processPayment (/opt/lampp/htdocs/backTransbank/src/controllers/paymentController.js:30:21)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-04-15 16:51:36","url":"/api/payment"}
+{"level":"info","message":"Recibida señal SIGINT. Cerrando servidor...","timestamp":"2025-04-15 16:53:55"}
+{"level":"warn","message":"Modo desarrollo: Simulando conexión con POS","timestamp":"2025-04-15 16:54:00"}
+{"level":"info","message":"Iniciando servidor en modo development","timestamp":"2025-04-15 16:54:00"}
+{"level":"warn","message":"Modo desarrollo: Simulando conexión con POS","timestamp":"2025-04-15 16:54:00"}
+{"level":"info","message":"Servidor Transbank POS escuchando en puerto 3000","timestamp":"2025-04-15 16:54:00"}
+{"level":"info","message":"Commerce Code: tu_codigo_comercio","timestamp":"2025-04-15 16:54:00"}
+{"level":"info","message":"Terminal ID: tu_terminal_id","timestamp":"2025-04-15 16:54:00"}
+{"level":"warn","message":"ADVERTENCIA: El sistema está en modo simulación","timestamp":"2025-04-15 16:54:00"}
+{"level":"warn","message":"Para conectar con un POS real, establezca FORCE_HARDWARE_CONNECTION=true","timestamp":"2025-04-15 16:54:00"}
+{"level":"info","message":"Conexión con POS establecida correctamente","timestamp":"2025-04-15 16:54:00"}
+{"level":"info","message":"POST /api/payment","timestamp":"2025-04-15 16:54:03"}
+{"level":"info","message":"Iniciando transacción - Monto: 15000, Ticket: TEST-002","timestamp":"2025-04-15 16:54:03"}
+{"level":"warn","message":"Modo simulación: Comando enviado a POS virtual","timestamp":"2025-04-15 16:54:03"}
+{"level":"info","message":"Transacción exitosa - Operación: 000974","timestamp":"2025-04-15 16:54:03"}
+{"level":"info","message":"GET /api/payment","timestamp":"2025-04-15 17:10:05"}
+{"level":"info","message":"POST /api/payment","timestamp":"2025-04-15 17:10:20"}
+{"level":"info","message":"Iniciando transacción - Monto: 15000, Ticket: TEST-002","timestamp":"2025-04-15 17:10:20"}
+{"level":"warn","message":"Modo simulación: Comando enviado a POS virtual","timestamp":"2025-04-15 17:10:20"}
+{"level":"info","message":"Transacción exitosa - Operación: 000817","timestamp":"2025-04-15 17:10:20"}
+{"level":"info","message":"Recibida señal SIGINT. Cerrando servidor...","timestamp":"2025-04-15 17:59:44"}

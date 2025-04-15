@@ -1,17 +1,19 @@
-function handleResponse(res, result) {
-    if (result.success) {
-      res.json({
-        success: true,
-        data: result.data || result.response,
-        message: result.message || 'Operación exitosa'
-      });
-    } else {
-      res.status(result.statusCode || 500).json({
-        success: false,
-        error: result.error || 'Error desconocido',
-        message: result.message || 'Error en la operación'
-      });
-    }
-  }
+const responseHandler = {
+  success: (res, message, data = {}, status = 200) => {
+    res.status(status).json({
+      success: true,
+      message,
+      data
+    });
+  },
   
-  module.exports = { handleResponse };
+  error: (res, message, status = 500, code = 'INTERNAL_ERROR') => {
+    res.status(status).json({
+      success: false,
+      error: message,
+      code
+    });
+  }
+};
+
+module.exports = responseHandler;

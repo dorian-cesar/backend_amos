@@ -1,70 +1,101 @@
-const express = require('express');
-const router = express.Router();
 const transbankService = require('../services/transbankService');
-const { handleResponse } = require('../utils/responseHandler');
+const responseHandler = require('../utils/responseHandler');
+const logger = require('../utils/logger');
 
-router.post('/init', async (req, res) => {
+exports.processPayment = async (req, res) => {
   try {
-    const { amount, buyOrder } = req.body;
+    const { amount, ticketNumber, printVoucher = true, sendMessages = true } = req.body;
     
-    // Validaciones básicas
-    if (!amount || isNaN(amount)) {
-      return res.status(400).json({ error: 'Monto inválido' });
+    if (!amount || isNaN(amount) || amount <= 0) {
+      throw new Error('Monto inválido');
     }
+
+    if (!ticketNumber || typeof ticketNumber !== 'string') {
+      throw new Error('Número de ticket/boleta inválido');
+    }
+
+    logger.info(`Iniciando transacción - Monto: ${amount}, Ticket: ${ticketNumber}`);
     
-    const sessionId = `session_${Date.now()}`;
-    const returnUrl = `${req.protocol}://${req.get('host')}/api/payment/confirm`;
-    
-    const result = await transbankService.createTransaction(
-      amount,
-      buyOrder,
-      sessionId,
-      returnUrl
+    const result = await transbankService.sendSaleCommand(
+      amount, 
+      ticketNumber, 
+      printVoucher, 
+      sendMessages
     );
     
-    if (!result.success) {
-      return res.status(500).json(result);
-    }
-    
-    res.json({
-      token: result.token,
-      url: result.url,
-      redirectUrl: `${result.url}?token_ws=${result.token}`
-    });
+    logger.info(`Transacción exitosa - Operación: ${result.operationNumber}`);
+    responseHandler.success(res, 'Transacción exitosa', result);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    logger.error(`Error en transacción: ${error.message}`, { stack: error.stack });
+    responseHandler.error(res, error.message, 500, error.responseCode);
   }
-});
+};
 
-router.post('/confirm', async (req, res) => {
+exports.closeTerminal = async (req, res) => {
   try {
-    const { token_ws } = req.body;
+    const { printReport = true } = req.body;
     
-    if (!token_ws) {
-      return res.redirect('/?error=missing_token');
-    }
+    logger.info('Iniciando cierre de terminal');
+    const result = await transbankService.sendCloseCommand(printReport);
     
-    const result = await transbankService.commitTransaction(token_ws);
-    
-    if (result.success) {
-      // Redirigir a página de éxito con datos de la transacción
-      return res.redirect(`/?success=true&authorizationCode=${result.response.authorizationCode}`);
-    } else {
-      return res.redirect(`/?error=transaction_failed`);
-    }
+    logger.info('Cierre de terminal completado exitosamente');
+    responseHandler.success(res, 'Cierre de terminal exitoso', result);
   } catch (error) {
-    res.redirect(`/?error=${encodeURIComponent(error.message)}`);
+    logger.error(`Error en cierre de terminal: ${error.message}`, { stack: error.stack });
+    responseHandler.error(res, error.message, 500, error.responseCode);
   }
-});
+};
 
-router.get('/status/:token', async (req, res) => {
+exports.getLastTransaction = async (req, res) => {
   try {
-    const { token } = req.params;
-    const result = await transbankService.statusTransaction(token);
-    res.json(result);
+    logger.info('Solicitando última transacción');
+    const result = await transbankService.getLastTransaction();
+    
+    if (!result) {
+      return responseHandler.success(res, 'No se encontraron transacciones', {});
+    }
+    
+    logger.info(`Última transacción obtenida - Operación: ${result.operationNumber}`);
+    responseHandler.success(res, 'Última transacción obtenida', result);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    logger.error(`Error obteniendo última transacción: ${error.message}`, { stack: error.stack });
+    responseHandler.error(res, error.message, 500);
   }
-});
+};
 
-module.exports = router;
+exports.initializeTerminal = async (req, res) => {
+  try {
+    logger.info('Iniciando inicialización de terminal');
+    const result = await transbankService.initializeTerminal();
+    
+    logger.info('Terminal inicializado exitosamente');
+    responseHandler.success(res, 'Terminal inicializado', result);
+  } catch (error) {
+    logger.error(`Error inicializando terminal: ${error.message}`, { stack: error.stack });
+    responseHandler.error(res, error.message, 500);
+  }
+};
+
+exports.processRefund = async (req, res) => {
+  try {
+    const { amount, originalOperationNumber } = req.body;
+    
+    if (!amount || isNaN(amount) || amount <= 0) {
+      throw new Error('Monto inválido');
+    }
+
+    if (!originalOperationNumber) {
+      throw new Error('Número de operación original requerido');
+    }
+
+    logger.info(`Iniciando reversa - Monto: ${amount}, Operación original: ${originalOperationNumber}`);
+    
+    const result = await transbankService.sendRefundCommand(amount, originalOperationNumber);
+    
+    logger.info(`Reversa exitosa - Operación: ${result.operationNumber}`);
+    responseHandler.success(res, 'Reversa exitosa', result);
+  } catch (error) {
+    logger.error(`Error en reversa: ${error.message}`, { stack: error.stack });
+    responseHandler.error(res, error.message, 500, error.responseCode);
+  }
+};

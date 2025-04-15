@@ -1,13 +1,16 @@
+backTransbank
 /src
   /config
-    transbankConfig.js
+    transbankConfig.js     # Exporta configureIntegration()
   /controllers
     paymentController.js
+    terminalController.js
   /services
-    transbankService.js
+    transbankService.js    # Exporta el modelo new transbankService()
   /utils
-    responseHandler.js
-    logger.js
-  app.js
+    posUtils.js
+    responseHandler.js     # Exporta responseHandler()
+    logger.js              # Exporta logger()
+  app.js                   # Usa configureIntegration()
   server.js
-.env
+.env  

@@ -1,15 +1,12 @@
-const { Options, WebpayPlus } = require('transbank-sdk');
-
-module.exports = {
-  configureIntegration: () => {
-    WebpayPlus.configureForTesting(); // Para desarrollo
-    // En producción usar:
-    // WebpayPlus.configureForProduction(commerceCode, apiKey);
-  },
-
-  getPOSConfig: () => ({
-    commerceCode: process.env.TBK_COMMERCE_CODE || '597055555532',
-    apiKey: process.env.TBK_API_KEY || '579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C',
-    environment: process.env.TBK_ENVIRONMENT || 'TEST'
-  })
+const config = {
+  protocol: process.env.TBK_PROTOCOL || 'USB',
+  portPath: process.env.TBK_PORT_PATH || '/dev/ttyUSB0', 
+  baudRate: parseInt(process.env.TBK_BAUD_RATE) || 115200,
+  timeout: parseInt(process.env.TBK_TIMEOUT) || 30000,
+  merchantCode: process.env.TBK_COMMERCE_CODE,
+  terminalId: process.env.TBK_TERMINAL_ID,
+  enableLogs: process.env.TBK_ENABLE_LOGS === 'true',
+  maxRetries: parseInt(process.env.TBK_MAX_RETRIES) || 3
 };
+
+module.exports = config; 
