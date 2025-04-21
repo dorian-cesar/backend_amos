@@ -31,3 +31,13 @@ exports.getLastTransaction = async (req, res) => {
     responseHandler.error(res, error.message, 500);
   }
 };
+
+exports.listPorts = async (req, res) => {
+  try {
+    const ports = await transbankService.listAvailablePorts();
+    responseHandler.success(res, 'Puertos disponibles', ports);
+  } catch (error) {
+    logger.error('Error al listar puertos:', error);
+    responseHandler.error(res, error.message, 500, 'PORTS_LIST_ERROR');
+  }
+};

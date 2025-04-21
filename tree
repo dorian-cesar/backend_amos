@@ -14,3 +14,11 @@ backTransbank
   app.js                   # Usa configureIntegration()
   server.js
 .env  
+
+sequenceDiagram
+  Frontend->>Backend: POST /api/payment {amount, ticketId}
+  Backend->>POS: Envía 0200 (Venta)
+  POS-->>Backend: 0900 (Estado intermedio)
+  Backend->>Frontend: 200 OK {message: "Opere tarjeta"}
+  POS-->>Backend: 0210 (Resultado final)
+  Backend->>Frontend: 200 OK {success: true, ...}

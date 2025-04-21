@@ -10,31 +10,85 @@ async function startServer() {
   try {
     logger.info(`Iniciando servidor en modo ${ENV}`);
     
-    // Inicializar conexión con el POS (no bloqueante)
-    transbankService.initializeConnection()
-      .then(() => {
-        if (transbankService.deviceConnected) {
-          logger.info('Conexión con POS establecida correctamente');
-        } else if (transbankService.simulationMode) {
-          logger.warn('Modo simulación activado - No hay conexión real con POS');
+    // Conexión automática con el POS (no bloqueante)
+    transbankService.autoconnect()
+      .then((port) => {
+        if (port) {
+          logger.info(`Conexión establecida con POS en ${port.path}`);
+          logger.info(`Commerce Code: ${process.env.TBK_COMMERCE_CODE}`);
+          logger.info(`Terminal ID: ${process.env.TBK_TERMINAL_ID}`);
         } else {
-          logger.error('No se pudo conectar con el POS');
+          logger.error('No se pudo conectar con ningún POS disponible');
+          // En este punto podrías terminar el proceso si es crítico para tu aplicación
+          // process.exit(1);
         }
       })
       .catch(error => {
-        logger.error('Error en conexión POS:', error);
+        logger.error('Error en conexión automática con POS:', error);
       });
 
-    // Iniciar servidor HTTP independientemente de la conexión con POS
+    // Iniciar servidor HTTP
     const server = app.listen(PORT, () => {
       logger.info(`Servidor Transbank POS escuchando en puerto ${PORT}`);
-      logger.info(`Commerce Code: ${process.env.TBK_COMMERCE_CODE || 'No configurado'}`);
-      logger.info(`Terminal ID: ${process.env.TBK_TERMINAL_ID || 'No configurado'}`);
-      
-      if (transbankService.simulationMode) {
-        logger.warn('ADVERTENCIA: El sistema está en modo simulación');
-        logger.warn('Para conectar con un POS real, establezca FORCE_HARDWARE_CONNECTION=true');
+    });
+
+    // Endpoint para listar puertos disponibles (útil para diagnóstico)
+    app.get('/api/terminal/ports', async (req, res) => {
+      try {
+        const ports = await transbankService.listAvailablePorts();
+        
+        res.status(200).json({
+          status: 'success',
+          ports: ports.map(port => ({
+            ...port,
+            isCurrent: transbankService.connection?.path === port.path,
+            recommended: port.manufacturer?.includes('Pax') || port.path.includes('ACM')
+          })),
+          baudRate: process.env.TBK_BAUD_RATE
+        });
+      } catch (error) {
+        logger.error('Error al listar puertos:', error);
+        res.status(500).json({
+          status: 'error',
+          message: 'No se pudieron listar los puertos',
+          code: 'PORTS_LIST_ERROR'
+        });
       }
+    });
+
+    // Nuevo endpoint para reconexión manual
+    app.post('/api/terminal/reconnect', async (req, res) => {
+      try {
+        const port = await transbankService.autoconnect();
+        if (port) {
+          res.status(200).json({
+            status: 'success',
+            message: `Conectado a POS en ${port.path}`,
+            port: port.path
+          });
+        } else {
+          res.status(503).json({
+            status: 'error',
+            message: 'No se encontró ningún POS conectado'
+          });
+        }
+      } catch (error) {
+        res.status(500).json({
+          status: 'error',
+          message: error.message
+        });
+      }
+    });
+
+    // Endpoint para verificar estado de conexión
+    app.get('/api/terminal/status', (req, res) => {
+      res.status(200).json({
+        status: 'success',
+        connected: transbankService.deviceConnected,
+        port: transbankService.connection?.path,
+        message: transbankService.deviceConnected ? 
+          'POS operativo' : 'POS desconectado'
+      });
     });
 
     const gracefulShutdown = async (signal) => {

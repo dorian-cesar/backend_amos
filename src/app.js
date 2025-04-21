@@ -35,6 +35,7 @@ app.post('/api/terminal/close', terminalController.closeTerminal);
 app.get('/api/terminal/last-transaction', terminalController.getLastTransaction);
 app.post('/api/terminal/initialize', terminalController.initializeTerminal);
 app.post('/api/refund', paymentController.processRefund);
+app.get('/api/terminal/ports', terminalController.listPorts);
 
 // Ruta de health check
 app.get('/health', (req, res) => {

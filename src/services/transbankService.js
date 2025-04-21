@@ -13,73 +13,99 @@ class TransbankService {
   constructor() {
     this.connection = null;
     this.deviceConnected = false;
-    this.simulationMode = process.env.NODE_ENV === 'development' && !process.env.FORCE_HARDWARE_CONNECTION;
-    this.initializeConnection();
+    
+    // Intenta conectar automáticamente al iniciar
+    this.autoconnect().catch(err => {
+      logger.error('Error en conexión inicial con POS:', err);
+      // No activamos modo simulación, solo registramos el error
+    });
+  }
+  
+  async autoconnect() {
+    try {
+      const ports = await this.listAvailablePorts(true);
+      const posPorts = ports.filter(port => {
+        return port.manufacturer?.includes('Pax') || 
+               port.path.includes('ACM') || 
+               port.path.includes('USB');
+      });
+  
+      if (posPorts.length === 0) {
+        throw new Error('No se encontraron puertos con POS conectado');
+      }
+  
+      posPorts.sort((a, b) => {
+        const aPriority = a.path.includes('USB') ? 1 : 0;
+        const bPriority = b.path.includes('USB') ? 1 : 0;
+        return bPriority - aPriority;
+      });
+  
+      for (const port of posPorts) {
+        try {
+          await this.connectToPort(port.path);
+          logger.info(`Conexión exitosa con POS en ${port.path}`);
+          return port;
+        } catch (error) {
+          logger.warn(`Fallo conexión con ${port.path}: ${error.message}`);
+          continue;
+        }
+      }
+  
+      throw new Error('No se pudo establecer conexión con ningún puerto');
+      
+    } catch (error) {
+      logger.error('Error en autoconnect:', error);
+      this.deviceConnected = false;
+      throw error; // Propagar el error en lugar de activar modo simulación
+    }
   }
 
-  async initializeConnection() {
-    try {
-      if (this.simulationMode) {
-        logger.warn('Modo desarrollo: Simulando conexión con POS');
-        this.deviceConnected = true;
-        return;
+  async connectToPort(portPath) {
+    return new Promise((resolve, reject) => {
+      // Cerrar conexión existente si hay
+      if (this.connection && this.connection.isOpen) {
+        this.connection.close();
       }
-
+  
       this.connection = new SerialPort({
-        path: config.portPath || '/dev/ttyUSB0',
+        path: portPath,
         baudRate: config.baudRate,
         dataBits: 8,
         parity: 'none',
         stopBits: 1,
         autoOpen: false
       });
-
+  
+      // Configurar eventos
       this.connection.on('error', (err) => {
-        logger.error('Error en conexión serial:', err);
+        logger.error(`Error en conexión con ${portPath}:`, err);
         this.deviceConnected = false;
+        reject(err);
       });
-
+  
       this.connection.on('open', () => {
-        logger.info('Conexión serial abierta correctamente');
+        logger.info(`Conexión establecida con POS en ${portPath}`);
         this.deviceConnected = true;
+        resolve();
       });
-
+  
       this.connection.on('close', () => {
-        logger.warn('Conexión serial cerrada');
+        logger.warn(`Conexión cerrada con ${portPath}`);
         this.deviceConnected = false;
       });
-
-      await new Promise((resolve, reject) => {
-        this.connection.open((err) => {
-          if (err) {
-            logger.error(`Error al abrir puerto serial ${config.portPath}:`, err);
-            this.deviceConnected = false;
-            return reject(err);
-          }
-          logger.info(`Conexión establecida con POS en ${config.portPath}`);
-          this.deviceConnected = true;
-          resolve();
-        });
-      });
-
-    } catch (error) {
-      logger.error('Error al inicializar conexión:', error);
-      this.deviceConnected = false;
-      
-      if (process.env.NODE_ENV === 'production') {
-        throw new Error('No se pudo inicializar la conexión con el POS');
-      }
-    }
+  
+      // Abrir puerto
+      this.connection.open();
+    });
   }
 
   async sendToPos(message) {
-    if (this.simulationMode || !this.deviceConnected) {
-      logger.warn('Modo simulación: Comando enviado a POS virtual');
-      return this.simulatePosResponse(message);
+    if (!this.deviceConnected) {
+      throw new Error('El POS no está conectado');
     }
 
     if (!this.connection || !this.connection.isOpen) {
-      throw new Error('El POS no está conectado');
+      throw new Error('La conexión con el POS no está activa');
     }
 
     return new Promise((resolve, reject) => {
@@ -118,75 +144,24 @@ class TransbankService {
         }
       });
     });
-  }
-
-  async simulatePosResponse(message) {
-    const command = message.substring(1, 5); // Extraer código de comando
-    const fields = message.split(constants.SEPARATOR);
-    
-    const baseResponse = {
-      command: command + '10',
-      responseCode: '00',
-      commerceCode: process.env.TBK_COMMERCE_CODE || '597012345678',
-      terminalId: process.env.TBK_TERMINAL_ID || 'TERM001',
-      rawResponse: message
-    };
-
-    switch(command) {
-      case '0200': // Venta
-        return {
-          ...baseResponse,
-          ticketNumber: fields[2]?.trim() || 'TEST' + Math.floor(Math.random() * 10000),
-          authorizationCode: Math.floor(Math.random() * 1000000).toString().padStart(6, '0'),
-          amount: fields[1]?.trim() || '000000000',
-          last4Digits: Math.floor(Math.random() * 10000).toString().padStart(4, '0'),
-          operationNumber: Math.floor(Math.random() * 1000).toString().padStart(6, '0'),
-          cardType: Math.random() > 0.5 ? 'CR' : 'DB',
-          date: new Date().toISOString()
-        };
-      case '0250': // Última transacción
-        return {
-          ...baseResponse,
-          ticketNumber: 'LAST' + Math.floor(Math.random() * 1000),
-          amount: '000005000',
-          last4Digits: '9876',
-          operationNumber: '000123',
-          cardType: 'CR'
-        };
-      case '0500': // Cierre
-        return {
-          ...baseResponse,
-          reportData: 'Cierre simulado exitoso'
-        };
-      default:
-        return baseResponse;
-    }
-  }
+  }  
 
   async sendSaleCommand(amount, ticketNumber, printVoucher = true, sendMessages = true) {
-    try {
-      const command = '0200';
-      const fields = [
-        amount.toString().padStart(9, '0'),
-        ticketNumber.padEnd(20, ' '),
-        printVoucher ? '1' : '0',
-        sendMessages ? '1' : '0'
-      ];
-      
-      const response = await this.sendToPos(buildMessage(command, fields));
-      
-      if (response.responseCode !== '00') {
-        throw Object.assign(
-          new Error(`Transacción rechazada: Código ${response.responseCode}`),
-          { responseCode: response.responseCode }
-        );
-      }
-      
-      return response;
-    } catch (error) {
-      logger.error('Error en sendSaleCommand:', error);
-      throw error;
+    const command = '0200';
+    const fields = [
+      amount.toString().padStart(9, '0'),
+      ticketNumber.padEnd(20, ' '),
+      printVoucher ? '1' : '0',
+      sendMessages ? '1' : '0'
+    ];
+    
+    const response = await this.sendToPos(buildMessage(command, fields));
+    
+    if (response.responseCode !== '00') {
+      throw new Error(`Transacción rechazada: Código ${response.responseCode}`);
     }
+    
+    return response;
   }
 
   async sendCloseCommand(printReport = true) {
@@ -276,6 +251,21 @@ class TransbankService {
       });
     }
   }
+
+  async listAvailablePorts() {
+    try {
+      const ports = await SerialPort.list();
+      return ports.map(port => ({
+        path: port.path,
+        manufacturer: port.manufacturer || 'Desconocido',
+        status: 'Disponible'
+      }));
+    } catch (error) {
+      logger.error('Error al listar puertos:', error);
+      throw new Error('No se pudieron listar los puertos. Verifique permisos.');
+    }
+  }
+
 }
 
 module.exports = new TransbankService();

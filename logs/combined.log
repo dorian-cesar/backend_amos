@@ -87,3 +87,12 @@
 {"level":"warn","message":"Modo simulación: Comando enviado a POS virtual","timestamp":"2025-04-15 17:10:20"}
 {"level":"info","message":"Transacción exitosa - Operación: 000817","timestamp":"2025-04-15 17:10:20"}
 {"level":"info","message":"Recibida señal SIGINT. Cerrando servidor...","timestamp":"2025-04-15 17:59:44"}
+{"level":"warn","message":"Modo desarrollo: Simulando conexión con POS","timestamp":"2025-04-15 18:01:05"}
+{"level":"info","message":"Iniciando servidor en modo development","timestamp":"2025-04-15 18:01:05"}
+{"level":"warn","message":"Modo desarrollo: Simulando conexión con POS","timestamp":"2025-04-15 18:01:05"}
+{"level":"info","message":"Servidor Transbank POS escuchando en puerto 3000","timestamp":"2025-04-15 18:01:05"}
+{"level":"info","message":"Commerce Code: tu_codigo_comercio","timestamp":"2025-04-15 18:01:05"}
+{"level":"info","message":"Terminal ID: tu_terminal_id","timestamp":"2025-04-15 18:01:05"}
+{"level":"warn","message":"ADVERTENCIA: El sistema está en modo simulación","timestamp":"2025-04-15 18:01:05"}
+{"level":"warn","message":"Para conectar con un POS real, establezca FORCE_HARDWARE_CONNECTION=true","timestamp":"2025-04-15 18:01:05"}
+{"level":"info","message":"Conexión con POS establecida correctamente","timestamp":"2025-04-15 18:01:05"}
