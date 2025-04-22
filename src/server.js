@@ -121,6 +121,9 @@ async function startServer() {
     // Manejo de excepciones no capturadas
     process.on('uncaughtException', (error) => {
       logger.error('Uncaught Exception:', error);
+      if (error.message.includes('POS') || error.message.includes('serialport')) {
+        transbankService.closeConnection();
+      }
       gracefulShutdown('uncaughtException');
     });
 

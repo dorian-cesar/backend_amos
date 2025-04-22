@@ -26,8 +26,13 @@ exports.processPayment = async (req, res) => {
     logger.info(`Transacción exitosa - Operación: ${result.operationNumber}`);
     responseHandler.success(res, 'Transacción exitosa', result);
   } catch (error) {
-    logger.error(`Error en transacción: ${error.message}`, { stack: error.stack });
-    responseHandler.error(res, error.message, 500, error.responseCode);
+    if (error.message.includes('cancelada')) {
+      logger.warn(`Transacción cancelada: ${error.message}`);
+      responseHandler.error(res, 'Transacción cancelada por el usuario', 400, 'USER_CANCELLED');
+    } else {
+      logger.error(`Error en transacción: ${error.message}`, { stack: error.stack });
+      responseHandler.error(res, error.message, 500, error.responseCode);
+    }
   }
 };
 

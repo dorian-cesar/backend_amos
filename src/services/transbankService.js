@@ -19,7 +19,15 @@ class TransbankService {
       logger.error('Error en conexión inicial con POS:', err);
       // No activamos modo simulación, solo registramos el error
     });
-  }
+
+    this.heartbeatInterval = setInterval(() => {
+      if (this.deviceConnected) {
+        this.sendPollingCommand().catch(() => {
+          this.deviceConnected = false;
+        });
+      }
+    }, 30000); // Cada 30 segundos
+  }  
   
   async autoconnect() {
     try {
@@ -103,39 +111,52 @@ class TransbankService {
     if (!this.deviceConnected) {
       throw new Error('El POS no está conectado');
     }
-
+  
     if (!this.connection || !this.connection.isOpen) {
       throw new Error('La conexión con el POS no está activa');
     }
-
+  
     return new Promise((resolve, reject) => {
       let responseBuffer = '';
       const timeout = setTimeout(() => {
         this.connection.removeAllListeners('data');
         reject(new Error('Timeout esperando respuesta del POS'));
       }, config.timeout);
-
+  
       const dataHandler = (data) => {
-        responseBuffer += data.toString();
-        if (responseBuffer.includes(String.fromCharCode(constants.ETX))) {
-          clearTimeout(timeout);
-          this.connection.removeListener('data', dataHandler);
-          try {
+        try {
+          responseBuffer += data.toString();
+          
+          // Detectar cancelación del usuario (código 07)
+          if (responseBuffer.includes('|07|')) {
+            clearTimeout(timeout);
+            this.connection.removeListener('data', dataHandler);
+            throw new Error('Transacción cancelada por el usuario');
+          }
+          
+          if (responseBuffer.includes(String.fromCharCode(constants.ETX))) {
+            clearTimeout(timeout);
+            this.connection.removeListener('data', dataHandler);
+            
             if (validateACKNAK(responseBuffer)) {
               if (responseBuffer.charCodeAt(0) === constants.NAK) {
                 throw new Error('POS rechazó el comando (NAK recibido)');
               }
               return;
             }
+            
             const parsed = parseResponse(responseBuffer);
             resolve(parsed);
-          } catch (error) {
-            reject(error);
           }
+        } catch (error) {
+          clearTimeout(timeout);
+          this.connection.removeListener('data', dataHandler);
+          reject(error);
         }
       };
-
+  
       this.connection.on('data', dataHandler);
+      
       this.connection.write(message, (err) => {
         if (err) {
           clearTimeout(timeout);
@@ -144,7 +165,7 @@ class TransbankService {
         }
       });
     });
-  }  
+  }
 
   async sendSaleCommand(amount, ticketNumber, printVoucher = true, sendMessages = true) {
     const command = '0200';
@@ -155,13 +176,26 @@ class TransbankService {
       sendMessages ? '1' : '0'
     ];
     
-    const response = await this.sendToPos(buildMessage(command, fields));
-    
-    if (response.responseCode !== '00') {
-      throw new Error(`Transacción rechazada: Código ${response.responseCode}`);
+    try {
+      const response = await this.sendToPos(buildMessage(command, fields));
+      
+      if (response.responseCode === '07') {
+        throw new Error('Transacción cancelada por el usuario');
+      }
+      
+      if (response.responseCode !== '00') {
+        throw new Error(`Transacción rechazada: Código ${response.responseCode}`);
+      }
+      
+      return response;
+    } catch (error) {
+      if (error.message.includes('cancelada')) {
+        logger.warn('Venta cancelada por el usuario en el POS');
+      } else {
+        logger.error('Error en sendSaleCommand:', error);
+      }
+      throw error;
     }
-    
-    return response;
   }
 
   async sendCloseCommand(printReport = true) {
@@ -264,6 +298,18 @@ class TransbankService {
       logger.error('Error al listar puertos:', error);
       throw new Error('No se pudieron listar los puertos. Verifique permisos.');
     }
+  }
+
+  setupPosEventHandlers() {
+    if (!this.connection) return;
+  
+    this.connection.on('data', (data) => {
+      const message = data.toString();
+      // Detectar cancelación temprana
+      if (message.includes('|07|') || message.includes('CANCELADA')) {
+        this.emit('transactionCancelled');
+      }
+    });
   }
 
 }

@@ -1,6 +1,6 @@
+const cors = require('cors');
 const express = require('express');
 const bodyParser = require('body-parser');
-const cors = require('cors');
 const logger = require('./utils/logger');
 const paymentController = require('./controllers/paymentController');
 const terminalController = require('./controllers/terminalController');
@@ -8,11 +8,7 @@ const terminalController = require('./controllers/terminalController');
 const app = express();
 
 // Configuración de middlewares
-app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || '*',
-  methods: ['GET', 'POST', 'PUT', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(cors()); // Esto permite todos los orígenes, métodos y headers
 
 app.use(bodyParser.json({
   limit: '10mb',

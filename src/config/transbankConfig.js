@@ -2,7 +2,7 @@ const config = {
   protocol: process.env.TBK_PROTOCOL || 'USB',
   portPath: process.env.TBK_PORT_PATH, 
   baudRate: parseInt(process.env.TBK_BAUD_RATE),
-  timeout: parseInt(process.env.TBK_TIMEOUT),
+  timeout: parseInt(process.env.TBK_TIMEOUT) || 150000, // 150 segundos
   merchantCode: process.env.TBK_COMMERCE_CODE,
   terminalId: process.env.TBK_TERMINAL_ID,
   enableLogs: process.env.TBK_ENABLE_LOGS === 'true',
