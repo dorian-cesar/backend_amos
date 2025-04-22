@@ -1,317 +1,151 @@
-const { 
-  calculateLRC, 
-  buildMessage, 
-  parseResponse, 
-  validateACKNAK,
-  constants 
-} = require('../utils/posUtils');
-const config = require('../config/transbankConfig');
+const { POSAutoservicio } = require('transbank-pos-sdk');
 const logger = require('../utils/logger');
-const { SerialPort } = require('serialport');
 
 class TransbankService {
   constructor() {
-    this.connection = null;
-    this.deviceConnected = false;
-    
-    // Intenta conectar automáticamente al iniciar
-    this.autoconnect().catch(err => {
-      logger.error('Error en conexión inicial con POS:', err);
-      // No activamos modo simulación, solo registramos el error
-    });
+    this.pos = new POSAutoservicio();
+    this.connectedPort = null;
 
-    this.heartbeatInterval = setInterval(() => {
-      if (this.deviceConnected) {
-        this.sendPollingCommand().catch(() => {
-          this.deviceConnected = false;
-        });
-      }
-    }, 30000); // Cada 30 segundos
-  }  
-  
+    this.pos.setDebug(true);    
+  }
+
   async autoconnect() {
     try {
-      const ports = await this.listAvailablePorts(true);
-      const posPorts = ports.filter(port => {
-        return port.manufacturer?.includes('Pax') || 
-               port.path.includes('ACM') || 
-               port.path.includes('USB');
-      });
-  
-      if (posPorts.length === 0) {
-        throw new Error('No se encontraron puertos con POS conectado');
+      // Si ya hay conexión activa, no intentamos reconectar
+      if (this.pos.isConnected() && this.connectedPort) {
+        logger.info(`POS ya conectado en ${this.connectedPort.path}`);
+        return this.connectedPort;
       }
   
-      posPorts.sort((a, b) => {
-        const aPriority = a.path.includes('USB') ? 1 : 0;
-        const bPriority = b.path.includes('USB') ? 1 : 0;
-        return bPriority - aPriority;
+      const allPorts = await this.pos.listPorts();
+  
+      const validPorts = allPorts.filter(p =>
+        p.path.toLowerCase().includes('acm') ||
+        p.path.toLowerCase().includes('usb')
+      );
+  
+      if (validPorts.length === 0) {
+        throw new Error('No se encontró ningún POS conectado (puertos ACM o USB)');
+      }
+  
+      // Priorizar ttyACM0
+      validPorts.sort((a, b) => {
+        if (a.path === '/dev/ttyACM0') return -1;
+        if (b.path === '/dev/ttyACM0') return 1;
+        return 0;
       });
   
-      for (const port of posPorts) {
+      for (const port of validPorts) {
         try {
-          await this.connectToPort(port.path);
-          logger.info(`Conexión exitosa con POS en ${port.path}`);
+          await this.pos.connect(port.path);
+          this.connectedPort = port;
+          logger.info(`Conectado automáticamente al POS en ${port.path}`);
           return port;
-        } catch (error) {
-          logger.warn(`Fallo conexión con ${port.path}: ${error.message}`);
+        } catch (err) {
+          logger.warn(`No se pudo conectar a ${port.path}: ${err.message}`);
           continue;
         }
       }
   
-      throw new Error('No se pudo establecer conexión con ningún puerto');
-      
+      throw new Error('No fue posible establecer conexión con ninguno de los puertos detectados');
     } catch (error) {
-      logger.error('Error en autoconnect:', error);
-      this.deviceConnected = false;
-      throw error; // Propagar el error en lugar de activar modo simulación
+      logger.error('Error en autoconnect():', error);
+      this.connectedPort = null;
+      throw error;
     }
   }
+   
 
   async connectToPort(portPath) {
-    return new Promise((resolve, reject) => {
-      // Cerrar conexión existente si hay
-      if (this.connection && this.connection.isOpen) {
-        this.connection.close();
-      }
-  
-      this.connection = new SerialPort({
-        path: portPath,
-        baudRate: config.baudRate,
-        dataBits: 8,
-        parity: 'none',
-        stopBits: 1,
-        autoOpen: false
-      });
-  
-      // Configurar eventos
-      this.connection.on('error', (err) => {
-        logger.error(`Error en conexión con ${portPath}:`, err);
-        this.deviceConnected = false;
-        reject(err);
-      });
-  
-      this.connection.on('open', () => {
-        logger.info(`Conexión establecida con POS en ${portPath}`);
-        this.deviceConnected = true;
-        resolve();
-      });
-  
-      this.connection.on('close', () => {
-        logger.warn(`Conexión cerrada con ${portPath}`);
-        this.deviceConnected = false;
-      });
-  
-      // Abrir puerto
-      this.connection.open();
-    });
+    const response = await this.pos.connect(portPath);
+    this.connectedPort = { path: portPath, ...response };
+    logger.info(`Conectado manualmente al puerto ${portPath}`);
+    return response;
   }
 
-  async sendToPos(message) {
-    if (!this.deviceConnected) {
-      throw new Error('El POS no está conectado');
-    }
-  
-    if (!this.connection || !this.connection.isOpen) {
-      throw new Error('La conexión con el POS no está activa');
-    }
-  
-    return new Promise((resolve, reject) => {
-      let responseBuffer = '';
-      const timeout = setTimeout(() => {
-        this.connection.removeAllListeners('data');
-        reject(new Error('Timeout esperando respuesta del POS'));
-      }, config.timeout);
-  
-      const dataHandler = (data) => {
-        try {
-          responseBuffer += data.toString();
-          
-          // Detectar cancelación del usuario (código 07)
-          if (responseBuffer.includes('|07|')) {
-            clearTimeout(timeout);
-            this.connection.removeListener('data', dataHandler);
-            throw new Error('Transacción cancelada por el usuario');
-          }
-          
-          if (responseBuffer.includes(String.fromCharCode(constants.ETX))) {
-            clearTimeout(timeout);
-            this.connection.removeListener('data', dataHandler);
-            
-            if (validateACKNAK(responseBuffer)) {
-              if (responseBuffer.charCodeAt(0) === constants.NAK) {
-                throw new Error('POS rechazó el comando (NAK recibido)');
-              }
-              return;
-            }
-            
-            const parsed = parseResponse(responseBuffer);
-            resolve(parsed);
-          }
-        } catch (error) {
-          clearTimeout(timeout);
-          this.connection.removeListener('data', dataHandler);
-          reject(error);
-        }
-      };
-  
-      this.connection.on('data', dataHandler);
-      
-      this.connection.write(message, (err) => {
-        if (err) {
-          clearTimeout(timeout);
-          this.connection.removeListener('data', dataHandler);
-          reject(err);
-        }
-      });
-    });
+  async listAvailablePorts() {
+    const ports = await this.pos.listPorts();
+    return ports.map(port => ({
+      path: port.path,
+      manufacturer: port.manufacturer || 'Desconocido'
+    }));
   }
 
-  async sendSaleCommand(amount, ticketNumber, printVoucher = true, sendMessages = true) {
-    const command = '0200';
-    const fields = [
-      amount.toString().padStart(9, '0'),
-      ticketNumber.padEnd(20, ' '),
-      printVoucher ? '1' : '0',
-      sendMessages ? '1' : '0'
-    ];
-    
+  async sendSaleCommand(amount, ticketNumber, printVoucher = true) {
     try {
-      const response = await this.sendToPos(buildMessage(command, fields));
-      
-      if (response.responseCode === '07') {
-        throw new Error('Transacción cancelada por el usuario');
-      }
-      
-      if (response.responseCode !== '00') {
-        throw new Error(`Transacción rechazada: Código ${response.responseCode}`);
-      }
-      
+      const response = await this.pos.sale(amount, ticketNumber, {
+        printOnPos: printVoucher
+      });
+
+      logger.info(`Venta exitosa - Operación: ${response.operationNumber}`);
       return response;
     } catch (error) {
-      if (error.message.includes('cancelada')) {
-        logger.warn('Venta cancelada por el usuario en el POS');
-      } else {
-        logger.error('Error en sendSaleCommand:', error);
-      }
-      throw error;
-    }
-  }
-
-  async sendCloseCommand(printReport = true) {
-    try {
-      const response = await this.sendToPos(buildMessage('0500', [printReport ? '1' : '0']));
-      
-      if (response.responseCode !== '00') {
-        throw Object.assign(
-          new Error(`Cierre rechazado: Código ${response.responseCode}`),
-          { responseCode: response.responseCode }
-        );
-      }
-      
-      await this.closeConnection();
-      return response;
-    } catch (error) {
-      logger.error('Error en sendCloseCommand:', error);
-      throw error;
-    }
-  }
-
-  async getLastTransaction() {
-    try {
-      const response = await this.sendToPos(buildMessage('0250', ['1']));
-      
-      if (response.responseCode !== '00') {
-        throw Object.assign(
-          new Error(`Error obteniendo última transacción: Código ${response.responseCode}`),
-          { responseCode: response.responseCode }
-        );
-      }
-      
-      return response;
-    } catch (error) {
-      logger.error('Error en getLastTransaction:', error);
-      throw error;
-    }
-  }
-
-  async initializeTerminal() {
-    try {
-      await this.sendToPos(buildMessage('0070', []));
-      return { success: true, message: 'Inicialización iniciada' };
-    } catch (error) {
-      logger.error('Error en initializeTerminal:', error);
+      logger.error('Error durante la venta:', error);
       throw error;
     }
   }
 
   async sendRefundCommand(amount, originalOperationNumber) {
     try {
-      const fields = [
-        amount.toString().padStart(9, '0'),
-        originalOperationNumber.padStart(6, '0'),
-        '1'
-      ];
-      
-      const response = await this.sendToPos(buildMessage('0400', fields));
-      
-      if (response.responseCode !== '00') {
-        throw Object.assign(
-          new Error(`Reversa rechazada: Código ${response.responseCode}`),
-          { responseCode: response.responseCode }
-        );
-      }
-      
+      const response = await this.pos.refund(amount, originalOperationNumber);
+      logger.info(`Reversa exitosa - Operación: ${response.operationNumber}`);
       return response;
     } catch (error) {
-      logger.error('Error en sendRefundCommand:', error);
+      logger.error('Error durante la reversa:', error);
       throw error;
     }
   }
 
-  async sendPollingCommand() {
+  async getLastTransaction() {
     try {
-      return await this.sendToPos(buildMessage('0100', []));
+      const response = await this.pos.getLastSale();
+      logger.info(`Última transacción obtenida - Operación: ${response.operationNumber}`);
+      return response;
     } catch (error) {
-      logger.error('Error en sendPollingCommand:', error);
+      logger.error('Error al obtener última transacción:', error);
       throw error;
     }
+  }
+
+  async sendCloseCommand(printReport = true) {
+    try {
+      const response = await this.pos.closeDay({ printOnPos: printReport });
+      logger.info('Cierre de terminal exitoso');
+      return response;
+    } catch (error) {
+      logger.error('Error durante el cierre de terminal:', error);
+      throw error;
+    }
+  }
+
+  async initializeTerminal() {
+    try {
+      await this.pos.loadKeys();
+      logger.info('Inicialización del terminal completada (llaves cargadas)');
+      return { success: true, message: 'Llaves cargadas correctamente' };
+    } catch (error) {
+      logger.error('Error al inicializar terminal (cargar llaves):', error);
+      throw error;
+    }
+  }
+
+  get deviceConnected() {
+    return this.connectedPort !== null;
+  }
+
+  get connection() {
+    return this.connectedPort;
   }
 
   async closeConnection() {
-    if (this.connection && this.connection.isOpen) {
-      await new Promise((resolve) => {
-        this.connection.close(resolve);
-      });
-    }
-  }
-
-  async listAvailablePorts() {
     try {
-      const ports = await SerialPort.list();
-      return ports.map(port => ({
-        path: port.path,
-        manufacturer: port.manufacturer || 'Desconocido',
-        status: 'Disponible'
-      }));
+      await this.pos.disconnect();
+      logger.info('Conexión con POS cerrada');
+      this.connectedPort = null;
     } catch (error) {
-      logger.error('Error al listar puertos:', error);
-      throw new Error('No se pudieron listar los puertos. Verifique permisos.');
+      logger.error('Error al cerrar conexión con POS:', error);
     }
   }
-
-  setupPosEventHandlers() {
-    if (!this.connection) return;
-  
-    this.connection.on('data', (data) => {
-      const message = data.toString();
-      // Detectar cancelación temprana
-      if (message.includes('|07|') || message.includes('CANCELADA')) {
-        this.emit('transactionCancelled');
-      }
-    });
-  }
-
 }
 
 module.exports = new TransbankService();

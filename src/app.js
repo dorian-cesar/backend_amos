@@ -2,21 +2,20 @@ const cors = require('cors');
 const express = require('express');
 const bodyParser = require('body-parser');
 const logger = require('./utils/logger');
+
 const paymentController = require('./controllers/paymentController');
 const terminalController = require('./controllers/terminalController');
 
 const app = express();
 
-// Configuración de middlewares
-app.use(cors()); // Esto permite todos los orígenes, métodos y headers
-
+// Middleware
+app.use(cors());
 app.use(bodyParser.json({
   limit: '10mb',
   verify: (req, res, buf) => {
     req.rawBody = buf;
   }
 }));
-
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Logging de requests
@@ -25,13 +24,18 @@ app.use((req, res, next) => {
   next();
 });
 
-// Rutas principales
+// Rutas de pagos
 app.post('/api/payment', paymentController.processPayment);
-app.post('/api/terminal/close', terminalController.closeTerminal);
-app.get('/api/terminal/last-transaction', terminalController.getLastTransaction);
-app.post('/api/terminal/initialize', terminalController.initializeTerminal);
 app.post('/api/refund', paymentController.processRefund);
+
+// Rutas del terminal POS
+app.post('/api/terminal/close', terminalController.closeTerminal);
+app.post('/api/terminal/initialize', terminalController.initializeTerminal);
+app.get('/api/terminal/last-transaction', terminalController.getLastTransaction);
 app.get('/api/terminal/ports', terminalController.listPorts);
+app.post('/api/terminal/reconnect', terminalController.reconnectPOS);
+app.post('/api/terminal/connect', terminalController.connectToSpecificPort);
+app.get('/api/terminal/status', terminalController.checkConnectionStatus);
 
 // Ruta de health check
 app.get('/health', (req, res) => {
@@ -41,7 +45,7 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Manejo de errores
+// Manejo de errores generales
 app.use((err, req, res, next) => {
   logger.error('Error no manejado:', {
     message: err.message,
