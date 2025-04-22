@@ -22,8 +22,10 @@ exports.processPayment = async (req, res) => {
       printVoucher
     );
 
-    logger.info(`Transacción exitosa - Operación: ${result.operationNumber}`);
-    responseHandler.success(res, 'Transacción exitosa', result);
+    //result.responseMESSAGE = result.responseMessage || 'Transacción exitosa';
+
+    logger.info(`Conexión exitosa - Operación: ${result.operationNumber}`);
+    responseHandler.success(res, 'Conexión exitosa', result);
   } catch (error) {
     if (error.message.includes('cancelada')) {
       logger.warn(`Transacción cancelada: ${error.message}`);
