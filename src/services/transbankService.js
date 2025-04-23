@@ -6,55 +6,8 @@ class TransbankService {
     this.pos = new POSAutoservicio();
     this.connectedPort = null;
 
-    this.pos.setDebug(true);    
+    this.pos.setDebug(true);
   }
-
-  async autoconnect() {
-    try {
-      // Si ya hay conexión activa, no intentamos reconectar
-      if (this.pos.isConnected() && this.connectedPort) {
-        logger.info(`POS ya conectado en ${this.connectedPort.path}`);
-        return this.connectedPort;
-      }
-  
-      const allPorts = await this.pos.listPorts();
-  
-      const validPorts = allPorts.filter(p =>
-        p.path.toLowerCase().includes('acm') ||
-        p.path.toLowerCase().includes('usb')
-      );
-  
-      if (validPorts.length === 0) {
-        throw new Error('No se encontró ningún POS conectado (puertos ACM o USB)');
-      }
-  
-      // Priorizar ttyACM0
-      validPorts.sort((a, b) => {
-        if (a.path === '/dev/ttyACM0') return -1;
-        if (b.path === '/dev/ttyACM0') return 1;
-        return 0;
-      });
-  
-      for (const port of validPorts) {
-        try {
-          await this.pos.connect(port.path);
-          this.connectedPort = port;
-          logger.info(`Conectado automáticamente al POS en ${port.path}`);
-          return port;
-        } catch (err) {
-          logger.warn(`No se pudo conectar a ${port.path}: ${err.message}`);
-          continue;
-        }
-      }
-  
-      throw new Error('No fue posible establecer conexión con ninguno de los puertos detectados');
-    } catch (error) {
-      logger.error('Error en autoconnect():', error);
-      this.connectedPort = null;
-      throw error;
-    }
-  }
-   
 
   async connectToPort(portPath) {
     const response = await this.pos.connect(portPath);

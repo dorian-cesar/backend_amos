@@ -32,14 +32,28 @@ exports.processPayment = async (req, res) => {
     });
 
   } catch (error) {
-    if (error.message.includes('cancelada')) {
-      logger.warn(`Transacción cancelada: ${error.message}`);
-      responseHandler.error(res, 'Transacción cancelada por el usuario', 400, 'USER_CANCELLED');
-    } else {
-      logger.error(`Error en transacción: ${error.message}`, { stack: error.stack });
-      responseHandler.error(res, error.message, 500, error.responseCode || 'UNKNOWN');
-    }
-  }
+    const messageLower = (error.message || '').toLowerCase();
+    const isUserCancelled = messageLower.includes('cancelada') || messageLower.includes('cancelado');
+  
+    const statusCode = isUserCancelled ? 400 : 500;
+    const errorCode = isUserCancelled ? 'USER_CANCELLED' : (error.responseCode || 'UNKNOWN');
+    const userMessage = isUserCancelled
+      ? 'Transacción cancelada por el usuario'
+      : 'Ocurrió un problema al procesar el pago';
+  
+    logger[isUserCancelled ? 'warn' : 'error'](
+      `Transacción ${isUserCancelled ? 'cancelada' : 'fallida'}: ${error.message}`,
+      isUserCancelled ? undefined : { stack: error.stack }
+    );
+  
+    const meta = process.env.NODE_ENV === 'development' ? {
+      detail: error.message,
+      stack: error.stack
+    } : {};
+  
+    responseHandler.error(res, userMessage, statusCode, errorCode, meta);
+  }  
+  
 };
 
 exports.processRefund = async (req, res) => {
