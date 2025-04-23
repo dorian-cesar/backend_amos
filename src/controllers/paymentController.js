@@ -22,10 +22,15 @@ exports.processPayment = async (req, res) => {
       printVoucher
     );
 
-    //result.responseMESSAGE = result.responseMessage || 'Transacción exitosa';
+    const voucherText = (result.voucher || result.parsed?.voucher || []).join('\n');
 
-    logger.info(`Conexión exitosa - Operación: ${result.operationNumber}`);
-    responseHandler.success(res, 'Conexión exitosa', result);
+    logger.info(`Conexión exitosa - Operación: ${result.parsed?.operationNumber || 'desconocida'}`);
+
+    responseHandler.success(res, 'Conexión exitosa', {
+      ...result,
+      voucherText
+    });
+
   } catch (error) {
     if (error.message.includes('cancelada')) {
       logger.warn(`Transacción cancelada: ${error.message}`);

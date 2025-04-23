@@ -1,3 +1,5 @@
+require('express-async-errors'); // Captura errores en funciones async automáticamente
+
 const cors = require('cors');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -8,8 +10,16 @@ const terminalController = require('./controllers/terminalController');
 
 const app = express();
 
-// Middleware
-app.use(cors());
+// Middleware CORS según entorno
+const corsOptions = process.env.NODE_ENV === 'development'
+  ? { origin: '*', credentials: false }
+  : {
+      origin: process.env.ALLOWED_ORIGINS.split(','),
+      credentials: true
+    };
+
+app.use(cors(corsOptions));
+
 app.use(bodyParser.json({
   limit: '10mb',
   verify: (req, res, buf) => {
@@ -65,6 +75,17 @@ app.use((req, res) => {
   res.status(404).json({
     error: 'Endpoint no encontrado'
   });
+});
+
+// Captura errores fatales para evitar que caiga el servidor
+process.on('uncaughtException', (err) => {
+  logger.error('❌ uncaughtException:', err);
+  // Opcional: puedes reiniciar el servidor aquí si es necesario
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  logger.error('❌ unhandledRejection:', reason);
+  // Opcional: podrías hacer un shutdown controlado si es muy crítico
 });
 
 module.exports = app;
