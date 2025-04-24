@@ -24,10 +24,10 @@ class TransbankService {
     }));
   }
 
-  async sendSaleCommand(amount, ticketNumber, printVoucher = true) {
+  async sendSaleCommand(amount, ticketNumber) {
     try {
       const response = await this.pos.sale(amount, ticketNumber, {
-        printOnPos: printVoucher
+        printOnPos: true
       });
 
       logger.info(`Venta exitosa - Operación: ${response.operationNumber}`);
@@ -91,14 +91,20 @@ class TransbankService {
   }
 
   async closeConnection() {
-    try {
-      await this.pos.disconnect();
-      logger.info('Conexión con POS cerrada');
-      this.connectedPort = null;
-    } catch (error) {
-      logger.error('Error al cerrar conexión con POS:', error);
+    if (this.connectedPort) {
+      try {
+        await this.pos.disconnect();
+        console.log('Conexión con POS cerrada correctamente');
+      } catch (error) {
+        console.error('Error al cerrar conexión con POS:', error.message);
+      } finally {
+        this.connectedPort = null;
+      }
+    } else {
+      console.warn('No hay conexión activa que cerrar');
     }
   }
+  
 }
 
 module.exports = new TransbankService();

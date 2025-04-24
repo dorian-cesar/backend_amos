@@ -1,137 +1,27 @@
-{"level":"info","message":"Recibida señal SIGINT. Cerrando servidor...","timestamp":"2025-04-23 13:34:15"}
-{"level":"info","message":"Servidor HTTP cerrado","timestamp":"2025-04-23 13:34:15"}
-{"level":"info","message":"Iniciando servidor en modo development","timestamp":"2025-04-23 13:34:23"}
-{"level":"info","message":"Servidor Transbank POS escuchando en puerto 3000","timestamp":"2025-04-23 13:34:23"}
-{"level":"info","message":"Conectado automáticamente al POS en /dev/ttyACM1","timestamp":"2025-04-23 13:34:23"}
-{"level":"info","message":"Conexión establecida con POS en /dev/ttyACM1","timestamp":"2025-04-23 13:34:23"}
-{"level":"info","message":"Commerce Code: tu_codigo_comercio","timestamp":"2025-04-23 13:34:23"}
-{"level":"info","message":"Terminal ID: IM750193","timestamp":"2025-04-23 13:34:23"}
-{"level":"info","message":"ngrok disponible en: https://648e-200-27-177-89.ngrok-free.app","timestamp":"2025-04-23 13:34:24"}
-{"level":"info","message":"GET /api/terminal/status","timestamp":"2025-04-23 13:34:38"}
-{"level":"info","message":"POST /api/payment","timestamp":"2025-04-23 13:35:16"}
-{"level":"info","message":"Iniciando transacción - Monto: 100, Ticket: B987654321","timestamp":"2025-04-23 13:35:16"}
-{"level":"info","message":"Venta exitosa - Operación: undefined","timestamp":"2025-04-23 13:35:26"}
-{"level":"info","message":"Conexión exitosa - Operación: desconocida","timestamp":"2025-04-23 13:35:26"}
-{"level":"info","message":"POST /api/payment","timestamp":"2025-04-23 13:36:20"}
-{"level":"info","message":"Iniciando transacción - Monto: 100, Ticket: 612134TSGQ","timestamp":"2025-04-23 13:36:20"}
-{"level":"info","message":"Iniciando servidor en modo development","timestamp":"2025-04-23 13:40:21"}
-{"level":"info","message":"Servidor Transbank POS escuchando en puerto 3000","timestamp":"2025-04-23 13:40:21"}
-{"level":"info","message":"Conectado automáticamente al POS en /dev/ttyACM0","timestamp":"2025-04-23 13:40:22"}
-{"level":"info","message":"Conexión establecida con POS en /dev/ttyACM0","timestamp":"2025-04-23 13:40:22"}
-{"level":"info","message":"Commerce Code: tu_codigo_comercio","timestamp":"2025-04-23 13:40:22"}
-{"level":"info","message":"Terminal ID: IM750193","timestamp":"2025-04-23 13:40:22"}
-{"level":"info","message":"ngrok disponible en: https://bd6e-200-27-177-89.ngrok-free.app","timestamp":"2025-04-23 13:40:22"}
-{"level":"info","message":"POST /api/payment","timestamp":"2025-04-23 13:42:55"}
-{"level":"info","message":"Iniciando transacción - Monto: 2000, Ticket: 23456","timestamp":"2025-04-23 13:42:55"}
-{"level":"info","message":"Venta exitosa - Operación: 17","timestamp":"2025-04-23 13:43:22"}
-{"level":"info","message":"Conexión exitosa - Operación: desconocida","timestamp":"2025-04-23 13:43:22"}
-{"level":"info","message":"POST /api/payment","timestamp":"2025-04-23 13:44:56"}
-{"level":"info","message":"Iniciando transacción - Monto: 2300, Ticket: wertyui","timestamp":"2025-04-23 13:44:56"}
-{"level":"info","message":"Venta exitosa - Operación: undefined","timestamp":"2025-04-23 13:45:17"}
-{"level":"info","message":"Conexión exitosa - Operación: desconocida","timestamp":"2025-04-23 13:45:17"}
-{"level":"info","message":"POST /api/payment","timestamp":"2025-04-23 13:49:57"}
-{"level":"info","message":"Iniciando transacción - Monto: 3459, Ticket: sdfghj","timestamp":"2025-04-23 13:49:57"}
-{"level":"info","message":"Venta exitosa - Operación: 21","timestamp":"2025-04-23 13:50:22"}
-{"level":"info","message":"Conexión exitosa - Operación: desconocida","timestamp":"2025-04-23 13:50:22"}
-{"level":"info","message":"POST /api/payment","timestamp":"2025-04-23 13:52:10"}
-{"level":"info","message":"Iniciando transacción - Monto: 5678, Ticket: iuytr","timestamp":"2025-04-23 13:52:10"}
-{"level":"info","message":"Venta exitosa - Operación: 22","timestamp":"2025-04-23 13:52:25"}
-{"level":"info","message":"Conexión exitosa - Operación: desconocida","timestamp":"2025-04-23 13:52:25"}
-{"level":"info","message":"POST /api/payment","timestamp":"2025-04-23 13:59:40"}
-{"level":"info","message":"Iniciando transacción - Monto: 8765, Ticket: poiuyt","timestamp":"2025-04-23 13:59:40"}
-{"level":"info","message":"POST /api/payment","timestamp":"2025-04-23 14:00:40"}
-{"level":"info","message":"Iniciando transacción - Monto: 4567, Ticket: jhgfd","timestamp":"2025-04-23 14:00:40"}
-{"level":"error","message":"Error durante la venta: Another message was already sent and it is still waiting for a response from the POS","stack":"Error: Another message was already sent and it is still waiting for a response from the POS\n    at /opt/lampp/htdocs/backTransbank-1/node_modules/transbank-pos-sdk/dist/transbank.js:1:8133\n    at new Promise (<anonymous>)\n    at e.exports.send (/opt/lampp/htdocs/backTransbank-1/node_modules/transbank-pos-sdk/dist/transbank.js:1:7975)\n    at e.exports.sale (/opt/lampp/htdocs/backTransbank-1/node_modules/transbank-pos-sdk/dist/transbank.js:1:3062)\n    at TransbankService.sendSaleCommand (/opt/lampp/htdocs/backTransbank-1/src/services/transbankService.js:76:39)\n    at exports.processPayment (/opt/lampp/htdocs/backTransbank-1/src/controllers/paymentController.js:19:43)\n    at newFn (/opt/lampp/htdocs/backTransbank-1/node_modules/express-async-errors/index.js:16:20)\n    at Layer.handle [as handle_request] (/opt/lampp/htdocs/backTransbank-1/node_modules/express/lib/router/layer.js:95:5)\n    at next (/opt/lampp/htdocs/backTransbank-1/node_modules/express/lib/router/route.js:149:13)\n    at Route.dispatch (/opt/lampp/htdocs/backTransbank-1/node_modules/express/lib/router/route.js:119:3)","timestamp":"2025-04-23 14:00:40"}
-{"level":"error","message":"Error en transacción: Another message was already sent and it is still waiting for a response from the POS","stack":"Error: Another message was already sent and it is still waiting for a response from the POS\n    at /opt/lampp/htdocs/backTransbank-1/node_modules/transbank-pos-sdk/dist/transbank.js:1:8133\n    at new Promise (<anonymous>)\n    at e.exports.send (/opt/lampp/htdocs/backTransbank-1/node_modules/transbank-pos-sdk/dist/transbank.js:1:7975)\n    at e.exports.sale (/opt/lampp/htdocs/backTransbank-1/node_modules/transbank-pos-sdk/dist/transbank.js:1:3062)\n    at TransbankService.sendSaleCommand (/opt/lampp/htdocs/backTransbank-1/src/services/transbankService.js:76:39)\n    at exports.processPayment (/opt/lampp/htdocs/backTransbank-1/src/controllers/paymentController.js:19:43)\n    at newFn (/opt/lampp/htdocs/backTransbank-1/node_modules/express-async-errors/index.js:16:20)\n    at Layer.handle [as handle_request] (/opt/lampp/htdocs/backTransbank-1/node_modules/express/lib/router/layer.js:95:5)\n    at next (/opt/lampp/htdocs/backTransbank-1/node_modules/express/lib/router/route.js:149:13)\n    at Route.dispatch (/opt/lampp/htdocs/backTransbank-1/node_modules/express/lib/router/route.js:119:3)","timestamp":"2025-04-23 14:00:40"}
-{"level":"info","message":"Recibida señal SIGINT. Cerrando servidor...","timestamp":"2025-04-23 14:01:20"}
-{"level":"error","message":"Error durante el shutdown: Timeout cerrando servidor","stack":"Error: Timeout cerrando servidor\n    at Timeout._onTimeout (/opt/lampp/htdocs/backTransbank-1/src/server.js:94:62)\n    at listOnTimeout (node:internal/timers:569:17)\n    at process.processTimers (node:internal/timers:512:7)","timestamp":"2025-04-23 14:01:25"}
-{"level":"info","message":"Iniciando servidor en modo development","timestamp":"2025-04-23 14:01:41"}
-{"level":"info","message":"Servidor Transbank POS escuchando en puerto 3000","timestamp":"2025-04-23 14:01:41"}
-{"level":"error","message":"Error en autoconnect(): No se encontró ningún POS conectado (puertos ACM o USB)","stack":"Error: No se encontró ningún POS conectado (puertos ACM o USB)\n    at TransbankService.autoconnect (/opt/lampp/htdocs/backTransbank-1/src/services/transbankService.js:28:15)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-04-23 14:01:41"}
-{"level":"error","message":"Error en conexión automática con POS: No se encontró ningún POS conectado (puertos ACM o USB)","stack":"Error: No se encontró ningún POS conectado (puertos ACM o USB)\n    at TransbankService.autoconnect (/opt/lampp/htdocs/backTransbank-1/src/services/transbankService.js:28:15)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-04-23 14:01:41"}
-{"level":"info","message":"ngrok disponible en: https://81f4-200-27-177-89.ngrok-free.app","timestamp":"2025-04-23 14:01:42"}
-{"level":"info","message":"Recibida señal SIGINT. Cerrando servidor...","timestamp":"2025-04-23 14:02:05"}
-{"level":"info","message":"Iniciando servidor en modo development","timestamp":"2025-04-23 14:02:09"}
-{"level":"info","message":"Servidor Transbank POS escuchando en puerto 3000","timestamp":"2025-04-23 14:02:09"}
-{"level":"error","message":"Error en autoconnect(): No se encontró ningún POS conectado (puertos ACM o USB)","stack":"Error: No se encontró ningún POS conectado (puertos ACM o USB)\n    at TransbankService.autoconnect (/opt/lampp/htdocs/backTransbank-1/src/services/transbankService.js:28:15)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-04-23 14:02:09"}
-{"level":"error","message":"Error en conexión automática con POS: No se encontró ningún POS conectado (puertos ACM o USB)","stack":"Error: No se encontró ningún POS conectado (puertos ACM o USB)\n    at TransbankService.autoconnect (/opt/lampp/htdocs/backTransbank-1/src/services/transbankService.js:28:15)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-04-23 14:02:09"}
-{"level":"info","message":"ngrok disponible en: https://96d6-200-27-177-89.ngrok-free.app","timestamp":"2025-04-23 14:02:10"}
-{"level":"info","message":"Recibida señal SIGINT. Cerrando servidor...","timestamp":"2025-04-23 14:02:28"}
-{"level":"info","message":"Iniciando servidor en modo development","timestamp":"2025-04-23 14:05:58"}
-{"level":"info","message":"Servidor Transbank POS escuchando en puerto 3000","timestamp":"2025-04-23 14:05:58"}
-{"level":"error","message":"Error en autoconnect(): No se encontró ningún POS conectado (puertos ACM o USB)","stack":"Error: No se encontró ningún POS conectado (puertos ACM o USB)\n    at TransbankService.autoconnect (/opt/lampp/htdocs/backTransbank-1/src/services/transbankService.js:28:15)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-04-23 14:05:58"}
-{"level":"error","message":"Error en conexión automática con POS: No se encontró ningún POS conectado (puertos ACM o USB)","stack":"Error: No se encontró ningún POS conectado (puertos ACM o USB)\n    at TransbankService.autoconnect (/opt/lampp/htdocs/backTransbank-1/src/services/transbankService.js:28:15)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-04-23 14:05:58"}
-{"level":"info","message":"ngrok disponible en: https://eb69-200-27-177-89.ngrok-free.app","timestamp":"2025-04-23 14:05:58"}
-{"level":"info","message":"Recibida señal SIGINT. Cerrando servidor...","timestamp":"2025-04-23 14:06:07"}
-{"level":"info","message":"Iniciando servidor en modo development","timestamp":"2025-04-23 14:06:11"}
-{"level":"info","message":"Servidor Transbank POS escuchando en puerto 3000","timestamp":"2025-04-23 14:06:11"}
-{"level":"error","message":"Error en autoconnect(): No se encontró ningún POS conectado (puertos ACM o USB)","stack":"Error: No se encontró ningún POS conectado (puertos ACM o USB)\n    at TransbankService.autoconnect (/opt/lampp/htdocs/backTransbank-1/src/services/transbankService.js:28:15)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-04-23 14:06:11"}
-{"level":"error","message":"Error en conexión automática con POS: No se encontró ningún POS conectado (puertos ACM o USB)","stack":"Error: No se encontró ningún POS conectado (puertos ACM o USB)\n    at TransbankService.autoconnect (/opt/lampp/htdocs/backTransbank-1/src/services/transbankService.js:28:15)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-04-23 14:06:11"}
-{"level":"info","message":"ngrok disponible en: https://9e14-200-27-177-89.ngrok-free.app","timestamp":"2025-04-23 14:06:12"}
-{"level":"info","message":"Recibida señal SIGINT. Cerrando servidor...","timestamp":"2025-04-23 14:06:13"}
-{"level":"info","message":"Iniciando servidor en modo development","timestamp":"2025-04-23 14:07:02"}
-{"level":"info","message":"Servidor Transbank POS escuchando en puerto 3000","timestamp":"2025-04-23 14:07:02"}
-{"level":"error","message":"Error en autoconnect(): No se encontró ningún POS conectado (puertos ACM o USB)","stack":"Error: No se encontró ningún POS conectado (puertos ACM o USB)\n    at TransbankService.autoconnect (/opt/lampp/htdocs/backTransbank-1/src/services/transbankService.js:28:15)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-04-23 14:07:03"}
-{"level":"error","message":"Error en conexión automática con POS: No se encontró ningún POS conectado (puertos ACM o USB)","stack":"Error: No se encontró ningún POS conectado (puertos ACM o USB)\n    at TransbankService.autoconnect (/opt/lampp/htdocs/backTransbank-1/src/services/transbankService.js:28:15)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-04-23 14:07:03"}
-{"level":"info","message":"ngrok disponible en: https://4c3a-200-27-177-89.ngrok-free.app","timestamp":"2025-04-23 14:07:03"}
-{"level":"info","message":"Recibida señal SIGINT. Cerrando servidor...","timestamp":"2025-04-23 14:07:10"}
-{"level":"info","message":"Iniciando servidor en modo development","timestamp":"2025-04-23 14:07:35"}
-{"level":"info","message":"Servidor Transbank POS escuchando en puerto 3000","timestamp":"2025-04-23 14:07:35"}
-{"level":"error","message":"Error en autoconnect(): No se encontró ningún POS conectado (puertos ACM o USB)","stack":"Error: No se encontró ningún POS conectado (puertos ACM o USB)\n    at TransbankService.autoconnect (/opt/lampp/htdocs/backTransbank-1/src/services/transbankService.js:28:15)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-04-23 14:07:35"}
-{"level":"error","message":"Error en conexión automática con POS: No se encontró ningún POS conectado (puertos ACM o USB)","stack":"Error: No se encontró ningún POS conectado (puertos ACM o USB)\n    at TransbankService.autoconnect (/opt/lampp/htdocs/backTransbank-1/src/services/transbankService.js:28:15)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-04-23 14:07:35"}
-{"level":"info","message":"ngrok disponible en: https://6719-200-27-177-89.ngrok-free.app","timestamp":"2025-04-23 14:07:36"}
-{"level":"info","message":"Recibida señal SIGINT. Cerrando servidor...","timestamp":"2025-04-23 14:09:28"}
-{"level":"info","message":"Iniciando servidor en modo development","timestamp":"2025-04-23 14:09:30"}
-{"level":"info","message":"Servidor Transbank POS escuchando en puerto 3000","timestamp":"2025-04-23 14:09:30"}
-{"level":"error","message":"Error en autoconnect(): No se encontró ningún POS conectado (puertos ACM o USB)","stack":"Error: No se encontró ningún POS conectado (puertos ACM o USB)\n    at TransbankService.autoconnect (/opt/lampp/htdocs/backTransbank-1/src/services/transbankService.js:28:15)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-04-23 14:09:30"}
-{"level":"error","message":"Error en conexión automática con POS: No se encontró ningún POS conectado (puertos ACM o USB)","stack":"Error: No se encontró ningún POS conectado (puertos ACM o USB)\n    at TransbankService.autoconnect (/opt/lampp/htdocs/backTransbank-1/src/services/transbankService.js:28:15)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-04-23 14:09:30"}
-{"level":"info","message":"ngrok disponible en: https://aa8a-200-27-177-89.ngrok-free.app","timestamp":"2025-04-23 14:09:31"}
-{"level":"info","message":"Recibida señal SIGINT. Cerrando servidor...","timestamp":"2025-04-23 14:09:34"}
-{"level":"info","message":"Iniciando servidor en modo development","timestamp":"2025-04-23 14:10:02"}
-{"level":"info","message":"Servidor Transbank POS escuchando en puerto 3000","timestamp":"2025-04-23 14:10:02"}
-{"level":"info","message":"Conectado automáticamente al POS en /dev/ttyACM0","timestamp":"2025-04-23 14:10:03"}
-{"level":"info","message":"Conexión establecida con POS en /dev/ttyACM0","timestamp":"2025-04-23 14:10:03"}
-{"level":"info","message":"Commerce Code: tu_codigo_comercio","timestamp":"2025-04-23 14:10:03"}
-{"level":"info","message":"Terminal ID: IM750193","timestamp":"2025-04-23 14:10:03"}
-{"level":"info","message":"ngrok disponible en: https://babb-200-27-177-89.ngrok-free.app","timestamp":"2025-04-23 14:10:03"}
-{"level":"info","message":"POST /api/payment","timestamp":"2025-04-23 14:10:27"}
-{"level":"info","message":"Iniciando transacción - Monto: 98765, Ticket: kjhgfd","timestamp":"2025-04-23 14:10:27"}
-{"level":"info","message":"POST /api/payment","timestamp":"2025-04-23 14:10:27"}
-{"level":"info","message":"Iniciando transacción - Monto: 98765, Ticket: kjhgfd","timestamp":"2025-04-23 14:10:27"}
-{"level":"error","message":"Error durante la venta: Another message was already sent and it is still waiting for a response from the POS","stack":"Error: Another message was already sent and it is still waiting for a response from the POS\n    at /opt/lampp/htdocs/backTransbank-1/node_modules/transbank-pos-sdk/dist/transbank.js:1:8133\n    at new Promise (<anonymous>)\n    at e.exports.send (/opt/lampp/htdocs/backTransbank-1/node_modules/transbank-pos-sdk/dist/transbank.js:1:7975)\n    at e.exports.sale (/opt/lampp/htdocs/backTransbank-1/node_modules/transbank-pos-sdk/dist/transbank.js:1:3062)\n    at TransbankService.sendSaleCommand (/opt/lampp/htdocs/backTransbank-1/src/services/transbankService.js:76:39)\n    at exports.processPayment (/opt/lampp/htdocs/backTransbank-1/src/controllers/paymentController.js:19:43)\n    at newFn (/opt/lampp/htdocs/backTransbank-1/node_modules/express-async-errors/index.js:16:20)\n    at Layer.handle [as handle_request] (/opt/lampp/htdocs/backTransbank-1/node_modules/express/lib/router/layer.js:95:5)\n    at next (/opt/lampp/htdocs/backTransbank-1/node_modules/express/lib/router/route.js:149:13)\n    at Route.dispatch (/opt/lampp/htdocs/backTransbank-1/node_modules/express/lib/router/route.js:119:3)","timestamp":"2025-04-23 14:10:27"}
-{"level":"error","message":"Transacción fallida: Another message was already sent and it is still waiting for a response from the POS","stack":"Error: Another message was already sent and it is still waiting for a response from the POS\n    at /opt/lampp/htdocs/backTransbank-1/node_modules/transbank-pos-sdk/dist/transbank.js:1:8133\n    at new Promise (<anonymous>)\n    at e.exports.send (/opt/lampp/htdocs/backTransbank-1/node_modules/transbank-pos-sdk/dist/transbank.js:1:7975)\n    at e.exports.sale (/opt/lampp/htdocs/backTransbank-1/node_modules/transbank-pos-sdk/dist/transbank.js:1:3062)\n    at TransbankService.sendSaleCommand (/opt/lampp/htdocs/backTransbank-1/src/services/transbankService.js:76:39)\n    at exports.processPayment (/opt/lampp/htdocs/backTransbank-1/src/controllers/paymentController.js:19:43)\n    at newFn (/opt/lampp/htdocs/backTransbank-1/node_modules/express-async-errors/index.js:16:20)\n    at Layer.handle [as handle_request] (/opt/lampp/htdocs/backTransbank-1/node_modules/express/lib/router/layer.js:95:5)\n    at next (/opt/lampp/htdocs/backTransbank-1/node_modules/express/lib/router/route.js:149:13)\n    at Route.dispatch (/opt/lampp/htdocs/backTransbank-1/node_modules/express/lib/router/route.js:119:3)","timestamp":"2025-04-23 14:10:27"}
-{"level":"info","message":"Venta exitosa - Operación: undefined","timestamp":"2025-04-23 14:10:58"}
-{"level":"info","message":"Conexión exitosa - Operación: desconocida","timestamp":"2025-04-23 14:10:58"}
-{"level":"info","message":"POST /api/payment","timestamp":"2025-04-23 14:16:17"}
-{"level":"info","message":"Iniciando transacción - Monto: 1234, Ticket: Hjkl","timestamp":"2025-04-23 14:16:17"}
-{"level":"info","message":"Venta exitosa - Operación: 25","timestamp":"2025-04-23 14:16:45"}
-{"level":"info","message":"Conexión exitosa - Operación: desconocida","timestamp":"2025-04-23 14:16:45"}
-{"level":"info","message":"POST /api/payment","timestamp":"2025-04-23 14:20:10"}
-{"level":"info","message":"Iniciando transacción - Monto: 3458, Ticket: Tyuio","timestamp":"2025-04-23 14:20:10"}
-{"level":"info","message":"Venta exitosa - Operación: 26","timestamp":"2025-04-23 14:20:24"}
-{"level":"info","message":"Conexión exitosa - Operación: desconocida","timestamp":"2025-04-23 14:20:24"}
-{"level":"info","message":"POST /api/payment","timestamp":"2025-04-23 14:21:12"}
-{"level":"info","message":"Iniciando transacción - Monto: 100, Ticket: 841494FSMK","timestamp":"2025-04-23 14:21:12"}
-{"level":"info","message":"Venta exitosa - Operación: 27","timestamp":"2025-04-23 14:21:24"}
-{"level":"info","message":"Conexión exitosa - Operación: desconocida","timestamp":"2025-04-23 14:21:24"}
-{"level":"info","message":"POST /api/payment","timestamp":"2025-04-23 14:24:25"}
-{"level":"info","message":"Iniciando transacción - Monto: 100, Ticket: 841494FSMK","timestamp":"2025-04-23 14:24:25"}
-{"level":"info","message":"Venta exitosa - Operación: undefined","timestamp":"2025-04-23 14:24:56"}
-{"level":"info","message":"Conexión exitosa - Operación: desconocida","timestamp":"2025-04-23 14:24:56"}
-{"level":"info","message":"POST /api/payment","timestamp":"2025-04-23 14:25:18"}
-{"level":"info","message":"Iniciando transacción - Monto: 100, Ticket: 510244YEQB","timestamp":"2025-04-23 14:25:18"}
-{"level":"info","message":"Venta exitosa - Operación: 28","timestamp":"2025-04-23 14:25:36"}
-{"level":"info","message":"Conexión exitosa - Operación: desconocida","timestamp":"2025-04-23 14:25:36"}
-{"level":"info","message":"Recibida señal SIGINT. Cerrando servidor...","timestamp":"2025-04-23 14:26:06"}
-{"level":"info","message":"Servidor HTTP cerrado","timestamp":"2025-04-23 14:26:06"}
-{"level":"info","message":"Iniciando servidor en modo development","timestamp":"2025-04-23 14:26:12"}
-{"level":"info","message":"Conectado manualmente al puerto /dev/ttyACM0","timestamp":"2025-04-23 14:26:13"}
-{"level":"info","message":"POS conectado a puerto fijo: undefined","timestamp":"2025-04-23 14:26:13"}
-{"level":"info","message":"Commerce Code: tu_codigo_comercio","timestamp":"2025-04-23 14:26:13"}
-{"level":"info","message":"Terminal ID: IM750193","timestamp":"2025-04-23 14:26:13"}
-{"level":"info","message":"Servidor Transbank POS escuchando en puerto 3000","timestamp":"2025-04-23 14:26:13"}
-{"level":"info","message":"ngrok disponible en: https://0ec1-200-27-177-89.ngrok-free.app","timestamp":"2025-04-23 14:26:13"}
-{"level":"info","message":"POST /api/payment","timestamp":"2025-04-23 14:26:53"}
-{"level":"info","message":"Iniciando transacción - Monto: 34584, Ticket: Tyuio","timestamp":"2025-04-23 14:26:53"}
-{"level":"info","message":"Venta exitosa - Operación: 29","timestamp":"2025-04-23 14:27:06"}
-{"level":"info","message":"Conexión exitosa - Operación: desconocida","timestamp":"2025-04-23 14:27:06"}
+{"level":"info","message":"Iniciando servidor en modo development","timestamp":"2025-04-24 09:40:32"}
+{"level":"info","message":"Conectado manualmente al puerto /dev/ttyACM0","timestamp":"2025-04-24 09:40:32"}
+{"level":"info","message":"POS conectado a puerto fijo: undefined","timestamp":"2025-04-24 09:40:32"}
+{"level":"info","message":"Commerce Code: tu_codigo_comercio","timestamp":"2025-04-24 09:40:32"}
+{"level":"info","message":"Terminal ID: IM750193","timestamp":"2025-04-24 09:40:32"}
+{"level":"info","message":"🔄 Iniciando monitor de salud del POS","timestamp":"2025-04-24 09:40:32"}
+{"level":"info","message":"Servidor Transbank POS escuchando en puerto 3000","timestamp":"2025-04-24 09:40:32"}
+{"level":"info","message":"POST /api/payment","timestamp":"2025-04-24 09:40:46"}
+{"level":"error","message":"Error durante la venta: ACK has not been received in 2000 ms.","stack":"Error: ACK has not been received in 2000 ms.\n    at Timeout._onTimeout (/opt/lampp/htdocs/backTransbank-1/node_modules/transbank-pos-sdk/dist/transbank.js:1:8305)\n    at listOnTimeout (node:internal/timers:569:17)\n    at process.processTimers (node:internal/timers:512:7)","timestamp":"2025-04-24 09:40:48"}
+{"level":"info","message":"✅ POS saludable y conectado","timestamp":"2025-04-24 09:42:12"}
+{"level":"info","message":"✅ POS saludable y conectado","timestamp":"2025-04-24 09:43:52"}
+{"level":"info","message":"POST /api/payment","timestamp":"2025-04-24 09:43:57"}
+{"level":"info","message":"Venta exitosa - Operación: 71","timestamp":"2025-04-24 09:44:12"}
+{"level":"info","message":"✅ POS saludable y conectado","timestamp":"2025-04-24 09:45:32"}
+{"level":"info","message":"✅ POS saludable y conectado","timestamp":"2025-04-24 09:47:12"}
+{"level":"info","message":"✅ POS saludable y conectado","timestamp":"2025-04-24 09:48:52"}
+{"level":"info","message":"✅ POS saludable y conectado","timestamp":"2025-04-24 09:50:32"}
+{"level":"info","message":"✅ POS saludable y conectado","timestamp":"2025-04-24 09:52:12"}
+{"level":"info","message":"✅ POS saludable y conectado","timestamp":"2025-04-24 09:53:52"}
+{"level":"info","message":"✅ POS saludable y conectado","timestamp":"2025-04-24 09:55:32"}
+{"level":"info","message":"✅ POS saludable y conectado","timestamp":"2025-04-24 09:57:13"}
+{"level":"info","message":"✅ POS saludable y conectado","timestamp":"2025-04-24 09:58:53"}
+{"level":"info","message":"✅ POS saludable y conectado","timestamp":"2025-04-24 10:00:33"}
+{"level":"info","message":"✅ POS saludable y conectado","timestamp":"2025-04-24 10:02:13"}
+{"level":"info","message":"✅ POS saludable y conectado","timestamp":"2025-04-24 10:03:53"}
+{"level":"info","message":"✅ POS saludable y conectado","timestamp":"2025-04-24 10:05:33"}
+{"level":"info","message":"✅ POS saludable y conectado","timestamp":"2025-04-24 10:07:13"}

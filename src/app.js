@@ -7,6 +7,7 @@ const logger = require('./utils/logger');
 
 const paymentController = require('./controllers/paymentController');
 const terminalController = require('./controllers/terminalController');
+const transbankService = require('./services/transbankService');
 
 const app = express();
 
@@ -39,13 +40,23 @@ app.post('/api/payment', paymentController.processPayment);
 app.post('/api/refund', paymentController.processRefund);
 
 // Rutas del terminal POS
-app.post('/api/terminal/close', terminalController.closeTerminal);
+app.post('/api/terminal/cierre-diario', terminalController.closeTerminal);
 app.post('/api/terminal/initialize', terminalController.initializeTerminal);
 app.get('/api/terminal/last-transaction', terminalController.getLastTransaction);
 app.get('/api/terminal/ports', terminalController.listPorts);
 app.post('/api/terminal/reconnect', terminalController.reconnectPOS);
 app.post('/api/terminal/connect', terminalController.connectToSpecificPort);
 app.get('/api/terminal/status', terminalController.checkConnectionStatus);
+
+app.post('/api/terminal/release-port', async (req, res) => {
+  try {
+    await transbankService.closeConnection();
+    res.status(200).json({ status: 'success', message: 'Puerto liberado manualmente' });
+  } catch (error) {
+    res.status(500).json({ status: 'error', message: error.message, code: 'PORT_RELEASE_FAILED' });
+  }
+});
+
 
 // Ruta de health check
 app.get('/health', (req, res) => {

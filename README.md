@@ -30,9 +30,11 @@ backTransbank
   /services
     transbankService.js    # Exporta el modelo new transbankService()
   /utils
-    posUtils.js
-    responseHandler.js     # Exporta responseHandler()
     logger.js              # Exporta logger()
+    posUtils.js
+    printVoucher.js
+    responseHandler.js     # Exporta responseHandler()
+    
   app.js                   # Usa configureIntegration()
   server.js
 .env  
@@ -48,32 +50,138 @@ sequenceDiagram
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ## Endpoints
 
-Pagos
-POST /api/payment
-→ Ejecuta una venta.
-Requiere: { amount, ticketNumber, printVoucher (opcional) }
+🔁 Pagos
+1. POST /payment
+Descripción: Inicia una transacción de venta.
 
-POST /api/refund
-→ Ejecuta una reversa.
-Requiere: { amount, originalOperationNumber }
+Body:
+{
+  "amount": 1000,
+  "ticketNumber": "A12345678",
+  "printVoucher": true
+}
 
-Terminal POS
-POST /api/terminal/close
+Respuesta exitosa:
+{
+  "success": true,
+  "message": "Conexión exitosa",
+  "data": {
+    "operationNumber": "123456",
+    "voucherText": "Texto del voucher para imprimir...",
+    ...
+  }
+}
 
-POST /api/terminal/initialize
+2. POST /refund
+Descripción: Realiza una reversa de una transacción anterior.
 
-GET /api/terminal/last-transaction
+Body:
+{
+  "amount": 1000,
+  "originalOperationNumber": "123456"
+}
+Respuesta exitosa:
+{
+  "success": true,
+  "message": "Reversa exitosa",
+  "data": {
+    "operationNumber": "654321",
+    ...
+  }
+}
 
-GET /api/terminal/ports
+3. GET /terminal/last-transaction
+Descripción: Devuelve la última transacción realizada por el POS.
 
-POST /api/terminal/reconnect
+Respuesta exitosa:
+{
+  "success": true,
+  "message": "Última transacción obtenida",
+  "data": {
+    "operationNumber": "123456",
+    ...
+  }
+}
 
-POST /api/terminal/connect
+⚙️ Terminal POS
+4. POST /terminal/initialize
+Descripción: Carga las llaves del POS (debe ejecutarse al iniciar el día o al conectar por primera vez).
 
-GET /api/terminal/status
+Respuesta:
+{
+  "success": true,
+  "message": "Terminal inicializado",
+  "data": {
+    "message": "Llaves cargadas correctamente"
+  }
+}
 
-Health check
-GET /health
+5. POST /terminal/close
+Descripción: Realiza el cierre de terminal.
+
+Body:
+{
+  "printReport": true
+}
+
+6. GET /terminal/status
+Descripción: Consulta si el POS está conectado.
+
+Respuesta:
+{
+  "status": "success",
+  "connected": true,
+  "port": "/dev/ttyACM0"
+}
+
+7. GET /terminal/ports
+Descripción: Lista los puertos disponibles para conexión.
+
+Respuesta:
+{
+  "status": "success",
+  "ports": [
+    {
+      "path": "/dev/ttyACM0",
+      "manufacturer": "Pax",
+      "isCurrent": true,
+      "recommended": true
+    },
+    ...
+  ]
+}
+
+8. POST /terminal/connect
+Descripción: Conecta al POS usando un puerto específico.
+
+Body:
+{
+  "portPath": "/dev/ttyACM0"
+}
+
+9. POST /terminal/reconnect
+Descripción: Reconecta automáticamente usando el puerto por defecto en .env.
+
+✅ Health Check
+10. GET /health
+Descripción: Verifica que el servidor esté funcionando.
+
+Respuesta:
+{
+  "status": "OK",
+  "environment": "development"
+}
+
+
+📌 Notas para el Frontend
+Todos los endpoints responden en JSON.
+
+Asegúrate de enviar el Content-Type: application/json.
+
+Los errores incluyen un code y mensaje descriptivo.
+
+La impresión del voucher se controla con printVoucher: true.
+
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

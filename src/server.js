@@ -2,13 +2,15 @@ require('dotenv').config();
 const app = require('./app');
 const logger = require('./utils/logger');
 const transbankService = require('./services/transbankService');
+const startPOSMonitor = require('./utils/posHealthMonitor');
+
 const PORT = process.env.PORT || 3000;
 const ENV = process.env.NODE_ENV || 'development';
 
 async function startServer() {
   try {
     logger.info(`Iniciando servidor en modo ${ENV}`);
-    
+
     try {
       const port = await transbankService.connectToPort(process.env.TBK_PORT_PATH);
       logger.info(`POS conectado a puerto fijo: ${port.path}`);
@@ -17,6 +19,9 @@ async function startServer() {
     } catch (connectError) {
       logger.error('No se pudo conectar al puerto configurado del POS:', connectError.message);
     }
+
+    // Iniciar monitor de salud del POS
+    startPOSMonitor();
 
     // Iniciar servidor HTTP
     const server = app.listen(PORT, () => {
@@ -31,7 +36,8 @@ async function startServer() {
           addr: PORT,
           authtoken: process.env.NGROK_AUTHTOKEN
         });
-        logger.info(`ngrok disponible en: ${listener.url()}`);
+        console.log(`ngrok disponible en: ${listener.url()}`);
+        
       } catch (ngrokError) {
         logger.error('Error al iniciar ngrok:', ngrokError.message);
       }
