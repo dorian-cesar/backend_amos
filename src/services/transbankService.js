@@ -26,11 +26,22 @@ class TransbankService {
 
   async sendSaleCommand(amount, ticketNumber) {
     try {
-      const response = await this.pos.sale(amount, ticketNumber, {
-        printOnPos: true
-      });
+      const ticket = ticketNumber.padEnd(20, '0').substring(0, 20);
+      const response = await this.pos.sale(amount, ticket, true, false); // sendVoucher: true, sendStatus: false
 
+      // Si no viene operationNumber, lo creamos usando timestamp
+      // if (!response.operationNumber) {
+      //   const now = Date.now();
+      //   // tomar los últimos 3 dígitos de Date.now() y rellenar con ceros si es necesario
+      //   const id3 = (now % 1000).toString().padStart(3, '0');
+      //   response.operationNumber = id3;
+      //   logger.warn(`operationNumber no existía; asignado: ${id3}`);
+      // }
+
+      // Registramos la respuesta completa (incluido el operationNumber recién añadido)
+      logger.info(`Respuesta venta - Operación: ${JSON.stringify(response)}`);
       logger.info(`Venta exitosa - Operación: ${response.operationNumber}`);
+
       return response;
     } catch (error) {
       logger.error('Error durante la venta:', error);
@@ -40,7 +51,8 @@ class TransbankService {
 
   async sendRefundCommand(amount, originalOperationNumber) {
     try {
-      const response = await this.pos.refund(amount, originalOperationNumber);
+      const ticket = originalOperationNumber.padEnd(20, '0').substring(0, 20);
+      const response = await this.pos.refund(amount, ticket);
       logger.info(`Reversa exitosa - Operación: ${response.operationNumber}`);
       return response;
     } catch (error) {
@@ -51,7 +63,7 @@ class TransbankService {
 
   async getLastTransaction() {
     try {
-      const response = await this.pos.getLastSale();
+      const response = await this.pos.lastSale(true, false); // sendVoucher: true
       logger.info(`Última transacción obtenida - Operación: ${response.operationNumber}`);
       return response;
     } catch (error) {
@@ -104,7 +116,6 @@ class TransbankService {
       console.warn('No hay conexión activa que cerrar');
     }
   }
-  
 }
 
 module.exports = new TransbankService();

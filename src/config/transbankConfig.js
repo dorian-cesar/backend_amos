@@ -5,7 +5,7 @@ const config = {
   timeout: parseInt(process.env.TBK_TIMEOUT) || 150000, // 150 segundos
   merchantCode: process.env.TBK_COMMERCE_CODE,
   terminalId: process.env.TBK_TERMINAL_ID,
-  enableLogs: process.env.TBK_ENABLE_LOGS === 'true',
+  enableLogs: process.env.TBK_ENABLE_LOGS === 'false',
   maxRetries: parseInt(process.env.TBK_MAX_RETRIES) || 3
 };
 

@@ -1,27 +1,62 @@
-{"level":"info","message":"Iniciando servidor en modo development","timestamp":"2025-04-24 09:40:32"}
-{"level":"info","message":"Conectado manualmente al puerto /dev/ttyACM0","timestamp":"2025-04-24 09:40:32"}
-{"level":"info","message":"POS conectado a puerto fijo: undefined","timestamp":"2025-04-24 09:40:32"}
-{"level":"info","message":"Commerce Code: tu_codigo_comercio","timestamp":"2025-04-24 09:40:32"}
-{"level":"info","message":"Terminal ID: IM750193","timestamp":"2025-04-24 09:40:32"}
-{"level":"info","message":"🔄 Iniciando monitor de salud del POS","timestamp":"2025-04-24 09:40:32"}
-{"level":"info","message":"Servidor Transbank POS escuchando en puerto 3000","timestamp":"2025-04-24 09:40:32"}
-{"level":"info","message":"POST /api/payment","timestamp":"2025-04-24 09:40:46"}
-{"level":"error","message":"Error durante la venta: ACK has not been received in 2000 ms.","stack":"Error: ACK has not been received in 2000 ms.\n    at Timeout._onTimeout (/opt/lampp/htdocs/backTransbank-1/node_modules/transbank-pos-sdk/dist/transbank.js:1:8305)\n    at listOnTimeout (node:internal/timers:569:17)\n    at process.processTimers (node:internal/timers:512:7)","timestamp":"2025-04-24 09:40:48"}
-{"level":"info","message":"✅ POS saludable y conectado","timestamp":"2025-04-24 09:42:12"}
-{"level":"info","message":"✅ POS saludable y conectado","timestamp":"2025-04-24 09:43:52"}
-{"level":"info","message":"POST /api/payment","timestamp":"2025-04-24 09:43:57"}
-{"level":"info","message":"Venta exitosa - Operación: 71","timestamp":"2025-04-24 09:44:12"}
-{"level":"info","message":"✅ POS saludable y conectado","timestamp":"2025-04-24 09:45:32"}
-{"level":"info","message":"✅ POS saludable y conectado","timestamp":"2025-04-24 09:47:12"}
-{"level":"info","message":"✅ POS saludable y conectado","timestamp":"2025-04-24 09:48:52"}
-{"level":"info","message":"✅ POS saludable y conectado","timestamp":"2025-04-24 09:50:32"}
-{"level":"info","message":"✅ POS saludable y conectado","timestamp":"2025-04-24 09:52:12"}
-{"level":"info","message":"✅ POS saludable y conectado","timestamp":"2025-04-24 09:53:52"}
-{"level":"info","message":"✅ POS saludable y conectado","timestamp":"2025-04-24 09:55:32"}
-{"level":"info","message":"✅ POS saludable y conectado","timestamp":"2025-04-24 09:57:13"}
-{"level":"info","message":"✅ POS saludable y conectado","timestamp":"2025-04-24 09:58:53"}
-{"level":"info","message":"✅ POS saludable y conectado","timestamp":"2025-04-24 10:00:33"}
-{"level":"info","message":"✅ POS saludable y conectado","timestamp":"2025-04-24 10:02:13"}
-{"level":"info","message":"✅ POS saludable y conectado","timestamp":"2025-04-24 10:03:53"}
-{"level":"info","message":"✅ POS saludable y conectado","timestamp":"2025-04-24 10:05:33"}
-{"level":"info","message":"✅ POS saludable y conectado","timestamp":"2025-04-24 10:07:13"}
+{"level":"info","message":"GET /api/payment","timestamp":"2025-04-25 15:02:54"}
+{"level":"info","message":"GET /favicon.ico","timestamp":"2025-04-25 15:02:54"}
+{"level":"info","message":"GET /api/terminal/ports","timestamp":"2025-04-25 15:05:45"}
+{"level":"info","message":"GET /health","timestamp":"2025-04-25 15:05:49"}
+{"level":"info","message":"GET /api/terminal/status","timestamp":"2025-04-25 15:06:00"}
+{"level":"info","message":"GET /api/terminal/status","timestamp":"2025-04-25 15:06:29"}
+{"level":"info","message":"POST /api/payment","timestamp":"2025-04-25 15:06:57"}
+{"level":"info","message":"Respuesta venta - Operación: {\"functionCode\":210,\"responseCode\":0,\"responseMessage\":\"Aprobado\",\"commerceCode\":597029414300,\"terminalId\":\"IM750193\",\"successful\":true,\"ticket\":\"652758\",\"authorizationCode\":\"906332\",\"amount\":100,\"last4Digits\":6590,\"operationNumber\":\"162\",\"cardType\":\"CR\",\"accountingDate\":\"\",\"accountNumber\":\"\",\"cardBrand\":\"VI\",\"realDate\":\"25042025\",\"realTime\":\"150710\"}","timestamp":"2025-04-25 15:07:08"}
+{"level":"info","message":"Venta exitosa - Operación: 162","timestamp":"2025-04-25 15:07:08"}
+{"level":"info","message":"✅ POS saludable y conectado","timestamp":"2025-04-25 15:10:05"}
+{"level":"info","message":"POST /api/payment","timestamp":"2025-04-25 15:12:05"}
+{"level":"info","message":"Respuesta venta - Operación: {\"functionCode\":210,\"responseCode\":0,\"responseMessage\":\"Aprobado\",\"commerceCode\":597029414300,\"terminalId\":\"IM750193\",\"successful\":true,\"ticket\":\"147158\",\"authorizationCode\":\"178029\",\"amount\":100,\"last4Digits\":6590,\"operationNumber\":\"163\",\"cardType\":\"CR\",\"accountingDate\":\"\",\"accountNumber\":\"\",\"cardBrand\":\"VI\",\"realDate\":\"25042025\",\"realTime\":\"151229\"}","timestamp":"2025-04-25 15:12:27"}
+{"level":"info","message":"Venta exitosa - Operación: 163","timestamp":"2025-04-25 15:12:27"}
+{"level":"info","message":"POST /api/payment","timestamp":"2025-04-25 15:15:12"}
+{"level":"info","message":"Respuesta venta - Operación: {\"functionCode\":210,\"responseCode\":0,\"responseMessage\":\"Aprobado\",\"commerceCode\":597029414300,\"terminalId\":\"IM750193\",\"successful\":true,\"ticket\":\"454501\",\"authorizationCode\":\"686749\",\"amount\":100,\"last4Digits\":6590,\"operationNumber\":\"164\",\"cardType\":\"CR\",\"accountingDate\":\"\",\"accountNumber\":\"\",\"cardBrand\":\"VI\",\"realDate\":\"25042025\",\"realTime\":\"151523\"}","timestamp":"2025-04-25 15:15:22"}
+{"level":"info","message":"Venta exitosa - Operación: 164","timestamp":"2025-04-25 15:15:22"}
+{"level":"info","message":"POST /api/payment","timestamp":"2025-04-25 15:18:04"}
+{"level":"info","message":"Respuesta venta - Operación: {\"functionCode\":210,\"responseCode\":0,\"responseMessage\":\"Aprobado\",\"commerceCode\":597029414300,\"terminalId\":\"IM750193\",\"successful\":true,\"ticket\":\"759806\",\"authorizationCode\":\"933257\",\"amount\":100,\"last4Digits\":6590,\"operationNumber\":\"165\",\"cardType\":\"CR\",\"accountingDate\":\"\",\"accountNumber\":\"\",\"cardBrand\":\"VI\",\"realDate\":\"25042025\",\"realTime\":\"151813\"}","timestamp":"2025-04-25 15:18:12"}
+{"level":"info","message":"Venta exitosa - Operación: 165","timestamp":"2025-04-25 15:18:12"}
+{"level":"info","message":"GET /api/payment","timestamp":"2025-04-25 15:18:38"}
+{"level":"info","message":"GET /favicon.ico","timestamp":"2025-04-25 15:18:38"}
+{"level":"info","message":"POST /api/payment","timestamp":"2025-04-25 15:18:52"}
+{"level":"info","message":"Respuesta venta - Operación: {\"functionCode\":210,\"responseCode\":0,\"responseMessage\":\"Aprobado\",\"commerceCode\":597029414300,\"terminalId\":\"IM750193\",\"successful\":true,\"ticket\":\"120\",\"authorizationCode\":\"259413\",\"amount\":5000,\"last4Digits\":3331,\"operationNumber\":\"166\",\"cardType\":\"DB\",\"accountingDate\":\"00-00-00\",\"accountNumber\":\"331\",\"cardBrand\":\"P \",\"realDate\":\"25042025\",\"realTime\":\"151911\"}","timestamp":"2025-04-25 15:19:09"}
+{"level":"info","message":"Venta exitosa - Operación: 166","timestamp":"2025-04-25 15:19:09"}
+{"level":"info","message":"POST /api/payment","timestamp":"2025-04-25 15:20:00"}
+{"level":"info","message":"Respuesta venta - Operación: {\"functionCode\":210,\"responseCode\":0,\"responseMessage\":\"Aprobado\",\"commerceCode\":597029414300,\"terminalId\":\"IM750193\",\"successful\":true,\"ticket\":\"125\",\"authorizationCode\":\"775845\",\"amount\":50005,\"last4Digits\":9480,\"operationNumber\":\"167\",\"cardType\":\"CR\",\"accountingDate\":\"\",\"accountNumber\":\"\",\"cardBrand\":\"MC\",\"realDate\":\"25042025\",\"realTime\":\"152027\"}","timestamp":"2025-04-25 15:20:25"}
+{"level":"info","message":"Venta exitosa - Operación: 167","timestamp":"2025-04-25 15:20:25"}
+{"level":"info","message":"POST /api/payment","timestamp":"2025-04-25 15:21:06"}
+{"level":"warn","message":"operationNumber no existía; asignado: 576","timestamp":"2025-04-25 15:21:12"}
+{"level":"info","message":"Respuesta venta - Operación: {\"functionCode\":210,\"responseCode\":7,\"responseMessage\":\"Transacción Cancelada desde el POS\",\"commerceCode\":null,\"successful\":false,\"authorizationCode\":null,\"amount\":null,\"last4Digits\":null,\"operationNumber\":\"576\"}","timestamp":"2025-04-25 15:21:12"}
+{"level":"info","message":"Venta exitosa - Operación: 576","timestamp":"2025-04-25 15:21:12"}
+{"level":"info","message":"POST /api/payment","timestamp":"2025-04-25 15:21:36"}
+{"level":"info","message":"Respuesta venta - Operación: {\"functionCode\":210,\"responseCode\":0,\"responseMessage\":\"Aprobado\",\"commerceCode\":597029414300,\"terminalId\":\"IM750193\",\"successful\":true,\"ticket\":\"120\",\"authorizationCode\":\"119412\",\"amount\":50005,\"last4Digits\":6590,\"operationNumber\":\"168\",\"cardType\":\"CR\",\"accountingDate\":\"\",\"accountNumber\":\"\",\"cardBrand\":\"VI\",\"realDate\":\"25042025\",\"realTime\":\"152148\"}","timestamp":"2025-04-25 15:21:47"}
+{"level":"info","message":"Venta exitosa - Operación: 168","timestamp":"2025-04-25 15:21:47"}
+{"level":"info","message":"POST /api/payment","timestamp":"2025-04-25 15:22:59"}
+{"level":"info","message":"Respuesta venta - Operación: {\"functionCode\":210,\"responseCode\":0,\"responseMessage\":\"Aprobado\",\"commerceCode\":597029414300,\"terminalId\":\"IM750193\",\"successful\":true,\"ticket\":\"253439\",\"authorizationCode\":\"769674\",\"amount\":100,\"last4Digits\":6590,\"operationNumber\":\"169\",\"cardType\":\"CR\",\"accountingDate\":\"\",\"accountNumber\":\"\",\"cardBrand\":\"VI\",\"realDate\":\"25042025\",\"realTime\":\"152313\"}","timestamp":"2025-04-25 15:23:11"}
+{"level":"info","message":"Venta exitosa - Operación: 169","timestamp":"2025-04-25 15:23:11"}
+{"level":"info","message":"POST /api/payment","timestamp":"2025-04-25 15:23:57"}
+{"level":"warn","message":"operationNumber no existía; asignado: 621","timestamp":"2025-04-25 15:23:57"}
+{"level":"info","message":"Respuesta venta - Operación: {\"functionCode\":null,\"responseCode\":84,\"responseMessage\":\"Opere tarjeta\",\"commerceCode\":null,\"successful\":false,\"authorizationCode\":null,\"amount\":null,\"last4Digits\":null,\"operationNumber\":\"621\"}","timestamp":"2025-04-25 15:23:57"}
+{"level":"info","message":"Venta exitosa - Operación: 621","timestamp":"2025-04-25 15:23:57"}
+{"level":"info","message":"Recibida señal SIGINT. Cerrando servidor...","timestamp":"2025-04-25 15:24:43"}
+{"level":"info","message":"Servidor HTTPS cerrado","timestamp":"2025-04-25 15:24:43"}
+{"level":"info","message":"Iniciando servidor en modo development","timestamp":"2025-04-25 15:24:48"}
+{"level":"info","message":"Conectado manualmente al puerto /dev/ttyACM0","timestamp":"2025-04-25 15:24:48"}
+{"level":"info","message":"POS conectado a puerto preferido: undefined","timestamp":"2025-04-25 15:24:48"}
+{"level":"info","message":"Commerce Code: tu_codigo_comercio","timestamp":"2025-04-25 15:24:48"}
+{"level":"info","message":"Terminal ID: IM750193","timestamp":"2025-04-25 15:24:48"}
+{"level":"info","message":"🔄 Iniciando monitor de salud del POS","timestamp":"2025-04-25 15:24:48"}
+{"level":"info","message":"Servidor Transbank POS con SSL escuchando en https://localhost:3000","timestamp":"2025-04-25 15:24:49"}
+{"level":"info","message":"POST /api/payment","timestamp":"2025-04-25 15:24:52"}
+{"level":"info","message":"Respuesta venta - Operación: {\"functionCode\":210,\"responseCode\":0,\"responseMessage\":\"Aprobado\",\"commerceCode\":597029414300,\"terminalId\":\"IM750193\",\"successful\":true,\"ticket\":\"353020\",\"authorizationCode\":\"917873\",\"amount\":100,\"last4Digits\":6590,\"operationNumber\":\"170\",\"cardType\":\"CR\",\"accountingDate\":\"\",\"accountNumber\":\"\",\"cardBrand\":\"VI\",\"realDate\":\"25042025\",\"realTime\":\"152501\"}","timestamp":"2025-04-25 15:24:59"}
+{"level":"info","message":"Venta exitosa - Operación: 170","timestamp":"2025-04-25 15:24:59"}
+{"level":"info","message":"POST /api/payment","timestamp":"2025-04-25 15:28:19"}
+{"level":"info","message":"Respuesta venta - Operación: {\"functionCode\":210,\"responseCode\":0,\"responseMessage\":\"Aprobado\",\"commerceCode\":597029414300,\"terminalId\":\"IM750193\",\"successful\":true,\"ticket\":\"815182\",\"authorizationCode\":\"589280\",\"amount\":100,\"last4Digits\":6590,\"operationNumber\":\"171\",\"cardType\":\"CR\",\"accountingDate\":\"\",\"accountNumber\":\"\",\"cardBrand\":\"VI\",\"realDate\":\"25042025\",\"realTime\":\"152828\"}","timestamp":"2025-04-25 15:28:27"}
+{"level":"info","message":"Venta exitosa - Operación: 171","timestamp":"2025-04-25 15:28:27"}
+{"level":"info","message":"✅ POS saludable y conectado","timestamp":"2025-04-25 15:41:28"}
+{"level":"info","message":"✅ POS saludable y conectado","timestamp":"2025-04-25 15:58:08"}
+{"level":"info","message":"✅ POS saludable y conectado","timestamp":"2025-04-25 16:14:48"}
+{"level":"info","message":"POST /api/payment","timestamp":"2025-04-25 16:15:05"}
+{"level":"info","message":"Respuesta venta - Operación: {\"functionCode\":210,\"responseCode\":0,\"responseMessage\":\"Aprobado\",\"commerceCode\":597029414300,\"terminalId\":\"IM750193\",\"successful\":true,\"ticket\":\"448799\",\"authorizationCode\":\"397333\",\"amount\":100,\"last4Digits\":6590,\"operationNumber\":\"172\",\"cardType\":\"CR\",\"accountingDate\":\"\",\"accountNumber\":\"\",\"cardBrand\":\"VI\",\"realDate\":\"25042025\",\"realTime\":\"161523\",\"voucher\":null,\"shareType\":\"03\",\"sharesNumber\":\"03\",\"sharesAmount\":\"34\",\"sharesTypeComment\":\"CUOTAS SIN INTERES\"}","timestamp":"2025-04-25 16:15:21"}
+{"level":"info","message":"Venta exitosa - Operación: 172","timestamp":"2025-04-25 16:15:21"}

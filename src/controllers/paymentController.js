@@ -1,5 +1,6 @@
 const transbankService = require('../services/transbankService');
 const responseHandler = require('../utils/responseHandler');
+const axios = require('axios');
 
 exports.processPayment = async (req, res) => {
   try {
@@ -16,13 +17,9 @@ exports.processPayment = async (req, res) => {
     console.log(`Iniciando transacción - Monto: ${amount}, Ticket: ${ticketNumber}`);
 
     const result = await transbankService.sendSaleCommand(amount, ticketNumber);
-    const voucherText = result.voucher?.join('\n') || '';
-
-    console.log(`Conexión exitosa - Operación: ${result.parsed?.operationNumber || 'desconocida'}`);
 
     responseHandler.success(res, 'Conexión exitosa', {
-      ...result,
-      voucherText
+      ...result
     });
   } catch (error) {
     const messageLower = (error.message || '').toLowerCase();

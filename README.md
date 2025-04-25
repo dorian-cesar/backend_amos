@@ -32,7 +32,7 @@ backTransbank
   /utils
     logger.js              # Exporta logger()
     posUtils.js
-    printVoucher.js
+   
     responseHandler.js     # Exporta responseHandler()
     
   app.js                   # Usa configureIntegration()

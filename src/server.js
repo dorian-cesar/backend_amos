@@ -3,6 +3,9 @@ const app = require('./app');
 const logger = require('./utils/logger');
 const transbankService = require('./services/transbankService');
 const startPOSMonitor = require('./utils/posHealthMonitor');
+const https = require('https');
+const fs = require('fs');
+const path = require('path');
 
 const PORT = process.env.PORT || 3000;
 const ENV = process.env.NODE_ENV || 'development';
@@ -11,21 +14,55 @@ async function startServer() {
   try {
     logger.info(`Iniciando servidor en modo ${ENV}`);
 
-    try {
-      const port = await transbankService.connectToPort(process.env.TBK_PORT_PATH);
-      logger.info(`POS conectado a puerto fijo: ${port.path}`);
+    const preferredPort = process.env.TBK_PORT_PATH;
+    let connected = false;
+    const triedPorts = [];
+
+    const tryConnectToPorts = async () => {
+      try {
+        const port = await transbankService.connectToPort(preferredPort);
+        logger.info(`POS conectado a puerto preferido: ${port.path}`);
+        connected = true;
+      } catch (initialError) {
+        logger.warn(`No se pudo conectar a puerto preferido (${preferredPort}): ${initialError.message}`);
+        const allPorts = await transbankService.listAvailablePorts();
+        const acmPorts = allPorts.filter(p => p.path.includes('ACM'));
+
+        for (const port of acmPorts) {
+          if (triedPorts.includes(port.path)) continue;
+          triedPorts.push(port.path);
+          try {
+            const result = await transbankService.connectToPort(port.path);
+            logger.info(`POS conectado a puerto alternativo: ${port.path}`);
+            connected = true;
+            break;
+          } catch (err) {
+            logger.warn(`Falló conexión a ${port.path}: ${err.message}`);
+          }
+        }
+      }
+    };
+
+    await tryConnectToPorts();
+
+    if (!connected) {
+      logger.error('❌ No se pudo conectar a ningún puerto POS válido');
+    } else {
       logger.info(`Commerce Code: ${process.env.TBK_COMMERCE_CODE}`);
       logger.info(`Terminal ID: ${process.env.TBK_TERMINAL_ID}`);
-    } catch (connectError) {
-      logger.error('No se pudo conectar al puerto configurado del POS:', connectError.message);
     }
 
     // Iniciar monitor de salud del POS
     startPOSMonitor();
 
-    // Iniciar servidor HTTP
-    const server = app.listen(PORT, () => {
-      logger.info(`Servidor Transbank POS escuchando en puerto ${PORT}`);
+    // Crear servidor HTTPS
+    const sslOptions = {
+      key: fs.readFileSync(path.resolve(__dirname, '../ssl/key.pem')),
+      cert: fs.readFileSync(path.resolve(__dirname, '../ssl/cert.pem'))
+    };
+
+    const server = https.createServer(sslOptions, app).listen(PORT, () => {
+      logger.info(`Servidor Transbank POS con SSL escuchando en https://localhost:${PORT}`);
     });
 
     // Iniciar ngrok si está activado
@@ -37,7 +74,6 @@ async function startServer() {
           authtoken: process.env.NGROK_AUTHTOKEN
         });
         console.log(`ngrok disponible en: ${listener.url()}`);
-        
       } catch (ngrokError) {
         logger.error('Error al iniciar ngrok:', ngrokError.message);
       }
@@ -88,7 +124,7 @@ async function startServer() {
           new Promise(resolve => server.close(resolve)),
           new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout cerrando servidor')), 5000))
         ]);
-        logger.info('Servidor HTTP cerrado');
+        logger.info('Servidor HTTPS cerrado');
         await transbankService.closeConnection();
         logger.info('Conexión con POS cerrada correctamente');
       } catch (error) {
