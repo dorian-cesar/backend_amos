@@ -107,7 +107,7 @@ class TransbankService {
     }
   }
 
-  async initializeTerminal() {
+  async loadKey() {
     try {
       await this.pos.loadKeys();
       logger.info('Inicialización del terminal completada (llaves cargadas)');

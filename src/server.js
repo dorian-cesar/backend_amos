@@ -55,7 +55,7 @@ async function startServer() {
       logger.info(`Terminal ID: ${process.env.TBK_TERMINAL_ID}`);
 
       // 2. Cargar llaves luego de conectar
-      await transbankService.initializeTerminal();
+      await transbankService.loadKey();
       logger.info('🔐 Llaves cargadas exitosamente');
     }
 

@@ -13,9 +13,9 @@ exports.closeTerminal = async (req, res) => {
   }
 };
 
-exports.initializeTerminal = async (req, res) => {
+exports.loadKey = async (req, res) => {
   try {
-    const result = await transbankService.initializeTerminal();
+    const result = await transbankService.loadKey();
     responseHandler.success(res, 'Inicialización del terminal completada', result);
   } catch (error) {
     logger.error('Error inicializando terminal:', error);

@@ -104,7 +104,7 @@ Respuesta exitosa:
 }
 
 ⚙️ Terminal POS
-4. POST /terminal/initialize
+4. POST /terminal/loadKeys
 Descripción: Carga las llaves del POS (debe ejecutarse al iniciar el día o al conectar por primera vez).
 
 Respuesta:

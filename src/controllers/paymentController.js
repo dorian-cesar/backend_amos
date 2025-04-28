@@ -84,16 +84,3 @@ exports.closeTerminal = async (req, res) => {
     responseHandler.error(res, error.message, 500, error.responseCode || 'UNKNOWN');
   }
 };
-
-exports.initializeTerminal = async (req, res) => {
-  try {
-    console.log('Iniciando carga de llaves del terminal');
-    const result = await transbankService.initializeTerminal();
-
-    console.log('Terminal inicializado exitosamente');
-    responseHandler.success(res, 'Terminal inicializado', result);
-  } catch (error) {
-    console.error(`Error inicializando terminal: ${error.message}`, { stack: error.stack });
-    responseHandler.error(res, error.message, 500, error.responseCode || 'UNKNOWN');
-  }
-};

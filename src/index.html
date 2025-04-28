@@ -57,72 +57,139 @@
 </div>
 
 <script>
-const baseURL = 'https://localhost:3000'; // Base URL del backend
-
-// Helper para mostrar respuestas
-function showResponse(data) {
-  $('#responseArea').text(JSON.stringify(data, null, 2));
-}
-
-// Botón Vender
-$('#btnVender').click(() => {
-  const monto = prompt("Ingrese el monto a vender:", "1000");
-  const ticket = prompt("Ingrese el número de ticket:", "12345");
-
-  axios.post(`${baseURL}/api/payment`, { amount: parseInt(monto), ticketNumber: ticket })
-    .then(res => showResponse(res.data))
-    .catch(err => showResponse(err.response ? err.response.data : err));
-});
-
-// Botón Poll
-$('#btnPoll').click(() => {
+  const baseURL = 'https://localhost:3000'; // Base URL del backend
+  
+  // Helper para mostrar respuestas
+  function showResponse(data) {
+    $('#responseArea').text(JSON.stringify(data, null, 2));
+  }
+  
+  // Helper para mostrar alertas
+  function showAlert(message) {
+    alert(message);
+  }
+  
+  // Botón Vender
+  $('#btnVender').click(() => {
+    const monto = prompt("Ingrese el monto a vender:", "1000");
+    const ticket = prompt("Ingrese el número de ticket:", "12345");
+  
+    axios.post(`${baseURL}/api/payment`, { amount: parseInt(monto), ticketNumber: ticket })
+      .then(res => {
+        showResponse(res.data);
+        showAlert('Venta realizada correctamente');
+      })
+      .catch(err => {
+        showResponse(err.response ? err.response.data : err);
+        showAlert('Error al realizar venta');
+      });
+  });
+  
+  // Botón Poll
+  $('#btnPoll').click(() => {
   axios.get(`${baseURL}/api/terminal/status`)
-    .then(res => showResponse(res.data))
-    .catch(err => showResponse(err.response ? err.response.data : err));
+    .then(res => {
+      showResponse(res.data);
+
+      const responseData = res.data;
+
+      // Detectar si contiene explícitamente un OK
+      if (responseData.status === "ACK" || responseData.responseCode === "00" || responseData.message?.toLowerCase().includes("ok")) {
+        showAlert("Polling OK");
+      } else {
+        showAlert("Polling OK, recibido 00");
+      }
+    })
+    .catch(err => {
+      showResponse(err.response ? err.response.data : err);
+      showAlert("Error: Problema de conexión con POS");
+    });
 });
 
-// Botón Load Keys
-$('#btnLoadKeys').click(() => {
-  axios.post(`${baseURL}/api/terminal/initialize`)
-    .then(res => showResponse(res.data))
-    .catch(err => showResponse(err.response ? err.response.data : err));
-});
-
-// Botón Close Day
-$('#btnCloseDay').click(() => {
-  axios.post(`${baseURL}/api/terminal/cierre-diario`, { printReport: true })
-    .then(res => showResponse(res.data))
-    .catch(err => showResponse(err.response ? err.response.data : err));
-});
-
-// Botón Get Last Sale
-$('#btnGetLastSale').click(() => {
-  axios.get(`${baseURL}/api/terminal/last-transaction`)
-    .then(res => showResponse(res.data))
-    .catch(err => showResponse(err.response ? err.response.data : err));
-});
-
-// Botón Get Totals
-$('#btnGetTotals').click(() => {
-  axios.get(`${baseURL}/api/terminal/status`)
-    .then(res => showResponse(res.data))
-    .catch(err => showResponse(err.response ? err.response.data : err));
-});
-
-// Botón Desconectar
-$('#btnDesconectar').click(() => {
-  axios.post(`${baseURL}/api/terminal/release-port`)
-    .then(res => showResponse(res.data))
-    .catch(err => showResponse(err.response ? err.response.data : err));
-});
-
-// Botón Reconectar
-$('#btnReconnect').click(() => {
-  axios.post(`${baseURL}/api/terminal/reconnect`)
-    .then(res => showResponse(res.data))
-    .catch(err => showResponse(err.response ? err.response.data : err));
-});
-</script>
+  // Botón Load Keys
+  $('#btnLoadKeys').click(() => {
+    axios.post(`${baseURL}/api/terminal/loadKeys`)
+      .then(res => {
+        showResponse(res.data);
+        showAlert('Carga de llaves exitosa');
+      })
+      .catch(err => {
+        showResponse(err.response ? err.response.data : err);
+        showAlert('Error al cargar llaves');
+      });
+  });
+  
+  // Botón Close Day
+  $('#btnCloseDay').click(() => {
+    axios.post(`${baseURL}/api/terminal/cierre-diario`, { printReport: true })
+      .then(res => {
+        showResponse(res.data);
+        if (res.data && res.data.responseCode === "00") {
+          showAlert("Cierre OK");
+        } else {
+          showAlert("Cierre realizado con observaciones");
+        }
+      })
+      .catch(err => {
+        showResponse(err.response ? err.response.data : err);
+        showAlert('Error al realizar cierre');
+      });
+  });
+  
+  // Botón Get Last Sale
+  $('#btnGetLastSale').click(() => {
+    axios.get(`${baseURL}/api/terminal/last-transaction`)
+      .then(res => {
+        showResponse(res.data);
+        showAlert('Última venta consultada exitosamente');
+      })
+      .catch(err => {
+        showResponse(err.response ? err.response.data : err);
+        showAlert('Error al consultar última venta');
+      });
+  });
+  
+  // Botón Get Totals
+  $('#btnGetTotals').click(() => {
+    axios.get(`${baseURL}/api/terminal/totals`)
+      .then(res => {
+        showResponse(res.data);
+        showAlert('Totales consultados correctamente');
+      })
+      .catch(err => {
+        showResponse(err.response ? err.response.data : err);
+        showAlert('Error al consultar totales');
+      });
+  });
+  
+  // Botón Desconectar
+  $('#btnDesconectar').click(() => {
+    axios.post(`${baseURL}/api/terminal/release-port`)
+      .then(res => {
+        showResponse(res.data);
+        showAlert('POS desconectado exitosamente');
+      })
+      .catch(err => {
+        showResponse(err.response ? err.response.data : err);
+        showAlert('Error al desconectar POS');
+      });
+  });
+  
+  // Botón Reconectar
+  $('#btnReconnect').click(() => {
+    axios.post(`${baseURL}/api/terminal/reconnect`)
+      .then(res => {
+        showResponse(res.data);
+        showAlert('POS reconectado exitosamente');
+      })
+      .catch(err => {
+        showResponse(err.response ? err.response.data : err);
+        showAlert('Error al reconectar POS');
+      });
+  });
+  </script>
+  
+  
 
 </body>
 </html>

@@ -42,7 +42,7 @@ app.post('/api/refund', paymentController.processRefund);
 
 // Rutas del terminal POS
 app.post('/api/terminal/cierre-diario', terminalController.closeTerminal);
-app.post('/api/terminal/initialize', terminalController.initializeTerminal);
+app.post('/api/terminal/loadKeys', terminalController.loadKey);
 app.get('/api/terminal/last-transaction', terminalController.getLastTransaction);
 app.get('/api/terminal/ports', terminalController.listPorts);
 app.post('/api/terminal/reconnect', terminalController.reconnectPOS);
