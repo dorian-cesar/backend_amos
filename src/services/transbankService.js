@@ -59,30 +59,40 @@ class TransbankService {
       const response = await this.pos.getLastSale();
       logger.info(`Última transacción obtenida - Operación: ${response.operationNumber}`);
       let parsed = null;
-    try {
-      logger.info('RAW RESPONSE de getLastSale:', response.rawResponse);
-      parsed = response.rawResponse ? parseResponse(response.rawResponse) : null;
-    } catch (e) {
-      logger.warn('No se pudo parsear la última transacción:', e.message);
-    }
-
-    return {
-      success: true,
-      raw: response.rawResponse,
-      parsed,
-      approved: parsed?.responseCode === '00',
-      responseCode: parsed?.responseCode || 'UNKNOWN',
-      operationNumber: parsed?.operationNumber || null,
-      message: parsed?.responseMessage || 'Última transacción',
-      type: parsed?.type || '0210',
-      fields: parsed?.rawFields || {}
-    };
-
+  
+      try {
+        logger.info('RAW RESPONSE de getLastSale:', response.rawResponse);
+        parsed = response.rawResponse ? parseResponse(response.rawResponse) : null;
+      } catch (e) {
+        logger.warn('No se pudo parsear la última transacción:', e.message);
+      }
+  
+      const hasRawData = response.rawResponse && response.rawResponse.trim() !== '';
+  
+      return {
+        success: true,
+        message: parsed
+          ? 'Última transacción obtenida y parseada correctamente'
+          : (hasRawData ? 'Última transacción obtenida pero no pudo ser parseada' : 'No se obtuvo información de la última transacción'),
+        data: {
+          raw: response.rawResponse || null,
+          parsed: parsed || null,
+          approved: parsed?.responseCode === '00' || false,
+          responseCode: parsed?.responseCode || 'UNKNOWN',
+          operationNumber: parsed?.operationNumber || response.operationNumber || null,
+          message: parsed?.responseMessage || (hasRawData ? 'Respuesta recibida sin parsear' : 'Sin datos de última venta'),
+          type: parsed?.type || '0210',
+          fields: parsed?.rawFields || {},
+          hasRawData
+        }
+      };
+  
     } catch (error) {
       logger.error('Error al obtener última transacción:', error);
       throw error;
     }
   }
+  
   
   
 
