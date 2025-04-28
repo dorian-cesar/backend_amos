@@ -1,4 +1,3 @@
-// Archivo: utils/posHealthMonitor.js
 
 const transbankService = require('../services/transbankService');
 const logger = require('../utils/logger');

@@ -6,7 +6,8 @@ class TransbankService {
     this.pos = new POSAutoservicio();
     this.connectedPort = null;
 
-    this.pos.setDebug(true);
+    // Deshabilitar mensajes de debug e intermedios
+    this.pos.setDebug(false);
   }
 
   async connectToPort(portPath) {
@@ -27,21 +28,13 @@ class TransbankService {
   async sendSaleCommand(amount, ticketNumber) {
     try {
       const ticket = ticketNumber.padEnd(20, '0').substring(0, 20);
-      const response = await this.pos.sale(amount, ticket, true, false); // sendVoucher: true, sendStatus: false
+      // Llamada corregida: solo el flag sendStatus (false) para recibir solo la respuesta final
+      const response = await this.pos.sale(amount, ticket);
 
-      // Si no viene operationNumber, lo creamos usando timestamp
-      // if (!response.operationNumber) {
-      //   const now = Date.now();
-      //   // tomar los últimos 3 dígitos de Date.now() y rellenar con ceros si es necesario
-      //   const id3 = (now % 1000).toString().padStart(3, '0');
-      //   response.operationNumber = id3;
-      //   logger.warn(`operationNumber no existía; asignado: ${id3}`);
-      // }
+      // Loguear la respuesta cruda para diagnóstico
+      logger.debug('RESPUESTA SDK:', JSON.stringify(response));
 
-      // Registramos la respuesta completa (incluido el operationNumber recién añadido)
-      logger.info(`Respuesta venta - Operación: ${JSON.stringify(response)}`);
       logger.info(`Venta exitosa - Operación: ${response.operationNumber}`);
-
       return response;
     } catch (error) {
       logger.error('Error durante la venta:', error);
@@ -52,7 +45,7 @@ class TransbankService {
   async sendRefundCommand(amount, originalOperationNumber) {
     try {
       const ticket = originalOperationNumber.padEnd(20, '0').substring(0, 20);
-      const response = await this.pos.refund(amount, ticket);
+      const response = await this.pos.refund(amount, ticket, false);
       logger.info(`Reversa exitosa - Operación: ${response.operationNumber}`);
       return response;
     } catch (error) {
@@ -71,10 +64,11 @@ class TransbankService {
       throw error;
     }
   }
+  
 
   async sendCloseCommand(printReport = true) {
     try {
-      const response = await this.pos.closeDay({ printOnPos: printReport });
+      const response = await this.pos.closeDay({ printOnPos: printReport }, false);
       logger.info('Cierre de terminal exitoso');
       return response;
     } catch (error) {
@@ -106,14 +100,14 @@ class TransbankService {
     if (this.connectedPort) {
       try {
         await this.pos.disconnect();
-        console.log('Conexión con POS cerrada correctamente');
+        logger.info('Conexión con POS cerrada correctamente');
       } catch (error) {
-        console.error('Error al cerrar conexión con POS:', error.message);
+        logger.error('Error al cerrar conexión con POS:', error.message);
       } finally {
         this.connectedPort = null;
       }
     } else {
-      console.warn('No hay conexión activa que cerrar');
+      logger.warn('No hay conexión activa que cerrar');
     }
   }
 }

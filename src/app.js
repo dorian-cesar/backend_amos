@@ -4,6 +4,7 @@ const cors = require('cors');
 const express = require('express');
 const bodyParser = require('body-parser');
 const logger = require('./utils/logger');
+const path = require('path'); // 👈 Agregado aquí
 
 const paymentController = require('./controllers/paymentController');
 const terminalController = require('./controllers/terminalController');
@@ -58,6 +59,10 @@ app.post('/api/terminal/release-port', async (req, res) => {
 });
 
 
+app.get('/tester', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 // Ruta de health check
 app.get('/health', (req, res) => {
   res.status(200).json({
@@ -91,12 +96,10 @@ app.use((req, res) => {
 // Captura errores fatales para evitar que caiga el servidor
 process.on('uncaughtException', (err) => {
   logger.error('❌ uncaughtException:', err);
-  // Opcional: puedes reiniciar el servidor aquí si es necesario
 });
 
 process.on('unhandledRejection', (reason, promise) => {
   logger.error('❌ unhandledRejection:', reason);
-  // Opcional: podrías hacer un shutdown controlado si es muy crítico
 });
 
 module.exports = app;

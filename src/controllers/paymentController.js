@@ -69,22 +69,6 @@ exports.processRefund = async (req, res) => {
   }
 };
 
-exports.getLastTransaction = async (req, res) => {
-  try {
-    console.log('Solicitando última transacción');
-    const result = await transbankService.getLastTransaction();
-
-    if (!result) {
-      return responseHandler.success(res, 'No se encontraron transacciones', {});
-    }
-
-    console.log(`Última transacción obtenida - Operación: ${result.operationNumber}`);
-    responseHandler.success(res, 'Última transacción obtenida', result);
-  } catch (error) {
-    console.error(`Error obteniendo última transacción: ${error.message}`, { stack: error.stack });
-    responseHandler.error(res, error.message, 500);
-  }
-};
 
 exports.closeTerminal = async (req, res) => {
   try {

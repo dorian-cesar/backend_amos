@@ -18,6 +18,9 @@ async function startServer() {
     let connected = false;
     const triedPorts = [];
 
+    // 1. Primero cerrar conexión previa
+    await transbankService.closeConnection();
+
     const tryConnectToPorts = async () => {
       try {
         const port = await transbankService.connectToPort(preferredPort);
@@ -50,12 +53,16 @@ async function startServer() {
     } else {
       logger.info(`Commerce Code: ${process.env.TBK_COMMERCE_CODE}`);
       logger.info(`Terminal ID: ${process.env.TBK_TERMINAL_ID}`);
+
+      // 2. Cargar llaves luego de conectar
+      await transbankService.initializeTerminal();
+      logger.info('🔐 Llaves cargadas exitosamente');
     }
 
-    // Iniciar monitor de salud del POS
+    // 3. Iniciar monitor de salud del POS
     startPOSMonitor();
 
-    // Crear servidor HTTPS
+    // 4. Crear servidor HTTPS
     const sslOptions = {
       key: fs.readFileSync(path.resolve(__dirname, '../ssl/key.pem')),
       cert: fs.readFileSync(path.resolve(__dirname, '../ssl/cert.pem'))
@@ -65,7 +72,8 @@ async function startServer() {
       logger.info(`Servidor Transbank POS con SSL escuchando en https://localhost:${PORT}`);
     });
 
-    // Iniciar ngrok si está activado
+    // 5. Iniciar ngrok si está activado
+    
     if (ENV === 'development' || process.env.ENABLE_NGROK === 'true') {
       try {
         const ngrok = require('@ngrok/ngrok');
@@ -79,7 +87,7 @@ async function startServer() {
       }
     }
 
-    // Rutas de diagnóstico y control
+    // 6. Rutas de diagnóstico y control
     app.get('/api/terminal/ports', async (req, res) => {
       try {
         const ports = await transbankService.listAvailablePorts();
@@ -116,7 +124,7 @@ async function startServer() {
       });
     });
 
-    // Apagado elegante
+    // 7. Apagado elegante
     const gracefulShutdown = async (signal) => {
       logger.info(`Recibida señal ${signal}. Cerrando servidor...`);
       try {
@@ -157,3 +165,5 @@ async function startServer() {
 }
 
 startServer();
+
+    
