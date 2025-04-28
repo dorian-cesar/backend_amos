@@ -56,14 +56,34 @@ class TransbankService {
 
   async getLastTransaction() {
     try {
-      const response = await this.pos.lastSale(true, false); // sendVoucher: true
+      const response = await this.pos.getLastSale();
       logger.info(`Última transacción obtenida - Operación: ${response.operationNumber}`);
-      return response;
+      let parsed = null;
+    try {
+      logger.info('RAW RESPONSE de getLastSale:', response.rawResponse);
+      parsed = response.rawResponse ? parseResponse(response.rawResponse) : null;
+    } catch (e) {
+      logger.warn('No se pudo parsear la última transacción:', e.message);
+    }
+
+    return {
+      success: true,
+      raw: response.rawResponse,
+      parsed,
+      approved: parsed?.responseCode === '00',
+      responseCode: parsed?.responseCode || 'UNKNOWN',
+      operationNumber: parsed?.operationNumber || null,
+      message: parsed?.responseMessage || 'Última transacción',
+      type: parsed?.type || '0210',
+      fields: parsed?.rawFields || {}
+    };
+
     } catch (error) {
       logger.error('Error al obtener última transacción:', error);
       throw error;
     }
   }
+  
   
 
   async sendCloseCommand(printReport = true) {
