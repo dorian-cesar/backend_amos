@@ -46,7 +46,7 @@
     </div>
 
     <div class="col-md-4">
-      <button id="btnReconnect" class="btn btn-secondary w-100">Reconectar POS</button>
+      <button id="btnConnect" class="btn btn-secondary w-100">Conectar POS</button>
     </div>
 
   </div>
@@ -184,9 +184,9 @@
       });
   });
   
-  // Botón Reconectar
-  $('#btnReconnect').click(() => {
-    axios.post(`${baseURL}/api/terminal/reconnect`)
+  // Botón Conectar
+  $('#btnConnect').click(() => {
+    axios.post(`${baseURL}/api/terminal/connect`)
       .then(res => {
         showResponse(res.data);
         showAlert('POS reconectado exitosamente');

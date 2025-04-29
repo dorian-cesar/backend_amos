@@ -43,17 +43,8 @@ exports.listPorts = async (req, res) => {
   }
 };
 
-exports.reconnectPOS = async (req, res) => {
-  try {
-    const port = await transbankService.autoconnect();
-    responseHandler.success(res, `POS reconectado en ${port.path}`, { port });
-  } catch (error) {
-    logger.error('Error al reconectar con el POS:', error);
-    responseHandler.error(res, error.message, 500, 'RECONNECT_ERROR');
-  }
-};
 
-exports.connectToSpecificPort = async (req, res) => {
+exports.conectarPuerto = async (req, res) => {
   try {
     const { portPath } = req.body;
     if (!portPath) {
@@ -68,7 +59,7 @@ exports.connectToSpecificPort = async (req, res) => {
   }
 };
 
-exports.checkConnectionStatus = async (req, res) => {
+exports.statusPos = async (req, res) => {
   try {
     responseHandler.success(res, 'Estado del POS', {
       connected: transbankService.deviceConnected,

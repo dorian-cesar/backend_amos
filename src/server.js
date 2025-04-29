@@ -106,7 +106,7 @@ async function startServer() {
       }
     });
 
-    app.post('/api/terminal/reconnect', async (req, res) => {
+    app.post('/api/terminal/connect', async (req, res) => {
       try {
         const port = await transbankService.connectToPort(process.env.TBK_PORT_PATH);
         res.status(200).json({ status: 'success', message: `Reconectado a POS en ${port.path}`, port: port.path });

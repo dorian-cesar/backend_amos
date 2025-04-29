@@ -1,10 +1,9 @@
-require('express-async-errors'); // Captura errores en funciones async automáticamente
-
+require('express-async-errors'); 
 const cors = require('cors');
 const express = require('express');
 const bodyParser = require('body-parser');
 const logger = require('./utils/logger');
-const path = require('path'); // 👈 Agregado aquí
+const path = require('path');
 
 const paymentController = require('./controllers/paymentController');
 const terminalController = require('./controllers/terminalController');
@@ -45,9 +44,8 @@ app.post('/api/terminal/cierre-diario', terminalController.closeTerminal);
 app.post('/api/terminal/loadKeys', terminalController.loadKey);
 app.get('/api/terminal/last-transaction', terminalController.getLastTransaction);
 app.get('/api/terminal/ports', terminalController.listPorts);
-app.post('/api/terminal/reconnect', terminalController.reconnectPOS);
-app.post('/api/terminal/connect', terminalController.connectToSpecificPort);
-app.get('/api/terminal/status', terminalController.checkConnectionStatus);
+app.post('/api/terminal/connect', terminalController.conectarPuerto);
+app.get('/api/terminal/status', terminalController.statusPos);
 
 app.post('/api/terminal/release-port', async (req, res) => {
   try {
