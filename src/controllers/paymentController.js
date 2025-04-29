@@ -18,18 +18,22 @@ exports.processPayment = async (req, res) => {
 
     const result = await transbankService.sendSaleCommand(amount, ticketNumber);
 
-    responseHandler.success(res, 'Conexión exitosa', {
+    const responseCode = result?.responseCode;
+
+       responseHandler.success(res, 'Resultado operación', {
       ...result
     });
+
   } catch (error) {
+    // Manejo de errores en la conexión al POS
     const messageLower = (error.message || '').toLowerCase();
     const isUserCancelled = messageLower.includes('cancelada') || messageLower.includes('cancelado');
     const isPosDisconnected = messageLower.includes('no se pudo conectar') || messageLower.includes('pos no conectado') || messageLower.includes('pos desconectado');
-  
+
     const statusCode = isUserCancelled || isPosDisconnected ? 400 : 500;
     let errorCode = 'UNKNOWN';
     let userMessage = 'Ocurrió un problema al procesar el pago';
-  
+
     if (isUserCancelled) {
       errorCode = 'USER_CANCELLED';
       userMessage = 'Transacción cancelada por el usuario';
@@ -39,20 +43,19 @@ exports.processPayment = async (req, res) => {
     } else if (error.responseCode) {
       errorCode = error.responseCode;
     }
-  
+
     console[isUserCancelled || isPosDisconnected ? 'warn' : 'error'](
       `Transacción ${isUserCancelled ? 'cancelada' : isPosDisconnected ? 'fallida por desconexión' : 'fallida'}: ${error.message}`,
       isUserCancelled || isPosDisconnected ? undefined : { stack: error.stack }
     );
-  
+
     const meta = process.env.NODE_ENV === 'development' ? {
       detail: error.message,
       stack: error.stack
     } : {};
-  
+
     responseHandler.error(res, userMessage, statusCode, errorCode, meta);
   }
-  
 };
 
 exports.processRefund = async (req, res) => {

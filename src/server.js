@@ -2,7 +2,7 @@ require('dotenv').config();
 const app = require('./app');
 const logger = require('./utils/logger');
 const transbankService = require('./services/transbankService');
-const startPOSMonitor = require('./utils/posHealthMonitor');
+const terminalController = require('./controllers/terminalController');
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
@@ -60,7 +60,7 @@ async function startServer() {
     }
 
     // 3. Iniciar monitor de salud del POS
-    startPOSMonitor();
+    await terminalController.startPOSMonitor();
 
     // 4. Crear servidor HTTPS
     const sslOptions = {

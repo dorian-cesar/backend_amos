@@ -189,14 +189,24 @@
     axios.post(`${baseURL}/api/terminal/connect`)
       .then(res => {
         showResponse(res.data);
-        showAlert('POS reconectado exitosamente');
+        showAlert('✅ POS conectado exitosamente');
       })
       .catch(err => {
-        showResponse(err.response ? err.response.data : err);
-        showAlert('Error al reconectar POS');
+        const data = err.response?.data || {};
+
+        showResponse(data);
+
+        if (data.code === 'POS_ALREADY_CONNECTED') {
+          showAlert('ℹ️ El POS ya está conectado');
+        } else if (data.code === 'PORT_CONNECT_ERROR') {
+          showAlert('❌ Error al conectar el POS. Verifica el cable y el puerto');
+        } else {
+          showAlert('⚠️ Error desconocido al intentar conectar');
+        }
       });
   });
-  </script>
+
+</script>
   
   
 

@@ -46,6 +46,7 @@ app.get('/api/terminal/last-transaction', terminalController.getLastTransaction)
 app.get('/api/terminal/ports', terminalController.listPorts);
 app.post('/api/terminal/connect', terminalController.conectarPuerto);
 app.get('/api/terminal/status', terminalController.statusPos);
+app.post('/api/terminal/start-monitor', terminalController.startHealthMonitor);
 
 app.post('/api/terminal/release-port', async (req, res) => {
   try {

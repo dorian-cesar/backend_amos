@@ -2,6 +2,44 @@ const transbankService = require('../services/transbankService');
 const responseHandler = require('../utils/responseHandler');
 const logger = require('../utils/logger');
 
+const POLLING_INTERVAL_MS = 1000000; 
+let monitorActive = false;
+
+// Función independiente para el monitor
+async function startPOSMonitor() {
+  if (monitorActive) return;
+  monitorActive = true;
+
+  logger.info('🔄 Iniciando monitor de salud del POS');
+
+  setInterval(async () => {
+    try {
+      if (!transbankService.deviceConnected) {
+        logger.warn('📉 POS desconectado. Intentando reconexión...');
+        await transbankService.connectToPort(process.env.TBK_PORT_PATH);
+        logger.info('✅ POS reconectado exitosamente');
+      } else {
+        logger.info('✅ POS saludable y conectado');
+      }
+    } catch (error) {
+      logger.error(`❌ Error durante verificación o reconexión del POS: ${error.message}`);
+    }
+  }, POLLING_INTERVAL_MS);
+}
+
+// Función del controlador para la API
+exports.startHealthMonitor = async (req, res) => {
+  try {
+    await startPOSMonitor();
+    responseHandler.success(res, 'Monitor de salud del POS iniciado');
+  } catch (error) {
+    logger.error('Error al iniciar monitor de salud:', error);
+    responseHandler.error(res, error.message, 500, 'MONITOR_START_ERROR');
+  }
+};
+
+exports.startPOSMonitor = startPOSMonitor;
+
 exports.closeTerminal = async (req, res) => {
   try {
     const { printReport = true } = req.body;
@@ -46,7 +84,12 @@ exports.listPorts = async (req, res) => {
 
 exports.conectarPuerto = async (req, res) => {
   try {
-    const { portPath } = req.body;
+    if (transbankService.deviceConnected && transbankService.connection) {
+      return responseHandler.error(res, 'El POS ya está conectado', 400, 'POS_ALREADY_CONNECTED');
+    }
+
+    const portPath = req.body.portPath || process.env.TBK_PORT_PATH;
+
     if (!portPath) {
       return responseHandler.error(res, 'Debe proporcionar un puerto válido', 400, 'MISSING_PORT');
     }

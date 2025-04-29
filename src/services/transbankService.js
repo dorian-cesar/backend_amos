@@ -94,7 +94,6 @@ class TransbankService {
   }
   
   
-  
 
   async sendCloseCommand(printReport = true) {
     try {
