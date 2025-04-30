@@ -25,7 +25,7 @@ class TransbankService {
     }));
   }
 
-  async sendSaleCommand(amount, ticketNumber) {
+  async enviarVenta(amount, ticketNumber) {
     try {
       const ticket = ticketNumber.padEnd(20, '0').substring(0, 20);
       // Llamada corregida: solo el flag sendStatus (false) para recibir solo la respuesta final
@@ -42,7 +42,7 @@ class TransbankService {
     }
   }
 
-  async sendRefundCommand(amount, originalOperationNumber) {
+  async enviarVentaReversa(amount, originalOperationNumber) {
     try {
       const ticket = originalOperationNumber.padEnd(20, '0').substring(0, 20);
       const response = await this.pos.refund(amount, ticket, false);

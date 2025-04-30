@@ -16,7 +16,7 @@ exports.processPayment = async (req, res) => {
 
     console.log(`Iniciando transacción - Monto: ${amount}, Ticket: ${ticketNumber}`);
 
-    const result = await transbankService.sendSaleCommand(amount, ticketNumber);
+    const result = await transbankService.enviarVenta(amount, ticketNumber);
 
     const responseCode = result?.responseCode;
 
@@ -72,28 +72,12 @@ exports.processRefund = async (req, res) => {
 
     console.log(`Iniciando reversa - Monto: ${amount}, Operación original: ${originalOperationNumber}`);
 
-    const result = await transbankService.sendRefundCommand(amount, originalOperationNumber);
+    const result = await transbankService.enviarVentaReversa(amount, originalOperationNumber);
 
     console.log(`Reversa exitosa - Operación: ${result.operationNumber}`);
     responseHandler.success(res, 'Reversa exitosa', result);
   } catch (error) {
     console.error(`Error en reversa: ${error.message}`, { stack: error.stack });
-    responseHandler.error(res, error.message, 500, error.responseCode || 'UNKNOWN');
-  }
-};
-
-
-exports.closeTerminal = async (req, res) => {
-  try {
-    const { printReport = true } = req.body;
-
-    console.log('Iniciando cierre de terminal');
-    const result = await transbankService.sendCloseCommand(printReport);
-
-    console.log('Cierre de terminal completado exitosamente');
-    responseHandler.success(res, 'Cierre de terminal exitoso', result);
-  } catch (error) {
-    console.error(`Error en cierre de terminal: ${error.message}`, { stack: error.stack });
     responseHandler.error(res, error.message, 500, error.responseCode || 'UNKNOWN');
   }
 };
