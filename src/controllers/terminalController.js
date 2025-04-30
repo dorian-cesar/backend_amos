@@ -1,11 +1,12 @@
 const transbankService = require('../services/transbankService');
 const responseHandler = require('../utils/responseHandler');
+const autoReconnectPOS = require('../utils/posReconnect');
 const logger = require('../utils/logger');
 
-const POLLING_INTERVAL_MS = 1000000; 
+const POLLING_INTERVAL_MS = 120000; // 2 minutos
+
 let monitorActive = false;
 
-// Función independiente para el monitor
 async function startPOSMonitor() {
   if (monitorActive) return;
   monitorActive = true;
@@ -16,8 +17,10 @@ async function startPOSMonitor() {
     try {
       if (!transbankService.deviceConnected) {
         logger.warn('📉 POS desconectado. Intentando reconexión...');
-        await transbankService.connectToPort(process.env.TBK_PORT_PATH);
-        logger.info('✅ POS reconectado exitosamente');
+        const reconnected = await autoReconnectPOS();
+        if (!reconnected) {
+          logger.error('❌ Falló la reconexión automática del POS');
+        }
       } else {
         logger.info('✅ POS saludable y conectado');
       }
@@ -27,7 +30,6 @@ async function startPOSMonitor() {
   }, POLLING_INTERVAL_MS);
 }
 
-// Función del controlador para la API
 exports.startHealthMonitor = async (req, res) => {
   try {
     await startPOSMonitor();
@@ -81,7 +83,6 @@ exports.listPorts = async (req, res) => {
   }
 };
 
-
 exports.conectarPuerto = async (req, res) => {
   try {
     if (transbankService.deviceConnected && transbankService.connection) {
@@ -113,3 +114,5 @@ exports.statusPos = async (req, res) => {
     responseHandler.error(res, error.message, 500, 'STATUS_ERROR');
   }
 };
+
+exports.autoReconnectPOS = autoReconnectPOS;

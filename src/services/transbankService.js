@@ -1,4 +1,5 @@
 const { POSAutoservicio } = require('transbank-pos-sdk');
+const autoReconnectPOS = require('../utils/posReconnect');
 const logger = require('../utils/logger');
 
 class TransbankService {
@@ -23,24 +24,38 @@ class TransbankService {
       path: port.path,
       manufacturer: port.manufacturer || 'Desconocido'
     }));
-  }
+  }  
 
   async enviarVenta(amount, ticketNumber) {
     try {
+      // Si el POS no está conectado, intentar reconexión
+      if (!this.deviceConnected) {
+        logger.warn('POS desconectado al intentar enviar venta. Intentando reconexión previa...');
+        const reconnected = await autoReconnectPOS();
+        if (!reconnected) {
+          throw new Error('No se pudo reconectar al POS');
+        }
+      }
+
       const ticket = ticketNumber.padEnd(20, '0').substring(0, 20);
-      // Llamada corregida: solo el flag sendStatus (false) para recibir solo la respuesta final
       const response = await this.pos.sale(amount, ticket);
-
-      // Loguear la respuesta cruda para diagnóstico
-      logger.debug('RESPUESTA SDK:', JSON.stringify(response));
-
-      logger.info(`Venta exitosa - Operación: ${response.operationNumber}`);
+      logger.info(`Venta enviada - Operación: ${response.operationNumber}`);
       return response;
     } catch (error) {
+      // Si hay mensaje pendiente
+      const pending = error.message.includes('still waiting for a response');
+      const timeout = error.message.includes('not been received');
+
+      if (pending || timeout) {
+        logger.warn('⚠️ Estado bloqueado por transacción anterior. Reiniciando conexión...');
+        await this.closeConnection();
+        await autoReconnectPOS(); // Forzar reconexión completa
+      }
+
       logger.error('Error durante la venta:', error);
       throw error;
     }
-  }
+  }  
 
   async enviarVentaReversa(amount, originalOperationNumber) {
     try {
