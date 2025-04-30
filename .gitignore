@@ -1,1 +1,4 @@
-logs/
+src/logs/combined.log
+src/logs/error.log
+logs/combined.log
+logs/error.log
