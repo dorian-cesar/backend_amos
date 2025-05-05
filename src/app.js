@@ -70,6 +70,12 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Ruta simple de monitoreo del servidor
+app.get('/monitor', (req, res) => {
+  res.json({ success: true, server: true });
+});
+
+
 // Manejo de errores generales
 app.use((err, req, res, next) => {
   logger.error('Error no manejado:', {
