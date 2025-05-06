@@ -230,3 +230,8 @@ Este valor final se adjunta al mensaje enviado. El receptor recalcula el LRC del
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+# 1. Generar clave privada SIN contraseña
+openssl genrsa -out key.pem 2048
+
+# 2. Generar certificado autofirmado válido por 365 días
+openssl req -new -x509 -key key.pem -out cert.pem -days 365

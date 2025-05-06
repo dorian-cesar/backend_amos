@@ -3,7 +3,7 @@ const responseHandler = require('../utils/responseHandler');
 const autoReconnectPOS = require('../utils/posReconnect');
 const logger = require('../utils/logger');
 
-const POLLING_INTERVAL_MS = 120000; // 2 minutos
+const POLLING_INTERVAL_MS = 150000; 
 
 let monitorActive = false;
 
