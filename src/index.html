@@ -15,6 +15,17 @@
 <div class="container py-5">
   <h1 class="text-center mb-4">Tester POS - Transbank</h1>
 
+  <div class="mb-4">
+    <label for="baseURLSelect" class="form-label">Selecciona la URL del servidor (baseURL):</label>
+    <select id="baseURLSelect" class="form-select">
+        <option value="https://192.168.88.250:3000">https://192.168.88.250:3000</option>
+        <option value="https://192.168.88.251:3000">https://192.168.88.251:3000</option>
+        <option value="https://192.168.88.252:3000">https://192.168.88.252:3000</option>
+        <option value="https://192.168.88.253:3000">https://192.168.88.253:3000</option>
+        <option value="https://192.168.88.254:3000">https://192.168.88.254:3000</option>
+    </select>
+  </div>
+
   <div class="row g-3">
 
     <div class="col-md-4">
@@ -37,9 +48,9 @@
       <button id="btnGetLastSale" class="btn btn-info w-100">Get Last Sale</button>
     </div>
 
-    <div class="col-md-4">
+    <!-- <div class="col-md-4">
       <button id="btnGetTotals" class="btn btn-info w-100">Get Totals</button>
-    </div>
+    </div> -->
 
     <div class="col-md-4">
       <button id="btnDesconectar" class="btn btn-danger w-100">Desconectar POS</button>
@@ -59,7 +70,9 @@
 </div>
 
 <script>
-  const baseURL = 'https://localhost:3000'; // Base URL del backend
+  function getBaseURL() {
+    return $('#baseURLSelect').val().trim();
+  } 
   
   // Helper para mostrar respuestas
   function showResponse(data) {
@@ -83,10 +96,10 @@
     const monto = prompt("Ingrese el monto a vender:", "1000");
     const ticket = prompt("Ingrese el número de ticket:", "12345");
   
-    axios.post(`${baseURL}/api/payment`, { amount: parseInt(monto), ticketNumber: ticket })
+    axios.post(`${getBaseURL()}/api/payment`, { amount: parseInt(monto), ticketNumber: ticket })
       .then(res => {
         showResponse(res.data);
-        showAlert('Venta realizada correctamente');
+        showAlert('Operación finalizada');
       })
       .catch(err => {
         showResponse(err.response ? err.response.data : err);
@@ -96,7 +109,7 @@
   
   // Botón Poll
   $('#btnPoll').click(() => {
-  axios.get(`${baseURL}/api/terminal/status`)
+  axios.get(`${getBaseURL()}/api/terminal/status`)
     .then(res => {
       showResponse(res.data);
 
@@ -113,11 +126,11 @@
       showResponse(err.response ? err.response.data : err);
       showAlert("Error: Problema de conexión con POS");
     });
-});
+  });
 
   // Botón Load Keys
   $('#btnLoadKeys').click(() => {
-    axios.post(`${baseURL}/api/terminal/loadKeys`)
+    axios.post(`${getBaseURL()}/api/terminal/loadKeys`)
       .then(res => {
         showResponse(res.data);
         showAlert('Carga de llaves exitosa');
@@ -130,7 +143,7 @@
   
   // Botón Close Day
   $('#btnCloseDay').click(() => {
-    axios.post(`${baseURL}/api/terminal/cierre-diario`, { printReport: true })
+    axios.post(`${getBaseURL()}/api/terminal/cierre-diario`, { printReport: true })
       .then(res => {
         showResponse(res.data);
         if (res.data && res.data.responseCode === "00") {
@@ -147,7 +160,7 @@
   
   // Botón Get Last Sale
   $('#btnGetLastSale').click(() => {
-    axios.get(`${baseURL}/api/terminal/last-transaction`)
+    axios.get(`${getBaseURL()}/api/terminal/last-transaction`)
       .then(res => {
         showResponse(res.data);
         showAlert('Última venta consultada exitosamente');
@@ -159,21 +172,21 @@
   });
   
   // Botón Get Totals
-  $('#btnGetTotals').click(() => {
-    axios.get(`${baseURL}/api/terminal/totals`)
-      .then(res => {
-        showResponse(res.data);
-        showAlert('Totales consultados correctamente');
-      })
-      .catch(err => {
-        showResponse(err.response ? err.response.data : err);
-        showAlert('Error al consultar totales');
-      });
-  });
+  // $('#btnGetTotals').click(() => {
+  //   axios.get(`${getBaseURL()}/api/terminal/totals`)
+  //     .then(res => {
+  //       showResponse(res.data);
+  //       showAlert('Totales consultados correctamente');
+  //     })
+  //     .catch(err => {
+  //       showResponse(err.response ? err.response.data : err);
+  //       showAlert('Error al consultar totales');
+  //     });
+  // });
   
   // Botón Desconectar
   $('#btnDesconectar').click(() => {
-    axios.post(`${baseURL}/api/terminal/release-port`)
+    axios.post(`${getBaseURL()}/api/terminal/release-port`)
       .then(res => {
         showResponse(res.data);
         showAlert('POS desconectado exitosamente');
@@ -186,7 +199,10 @@
   
   // Botón Conectar
   $('#btnConnect').click(() => {
-    axios.post(`${baseURL}/api/terminal/connect`)
+    // Define el puerto al que deseas conectarte (puedes obtenerlo dinámicamente si es necesario)
+    const portPath = "/dev/ttyACM0";
+
+    axios.post(`${getBaseURL()}/api/terminal/connect`, { portPath }) // Envía el objeto { portPath }
       .then(res => {
         showResponse(res.data);
         showAlert('✅ POS conectado exitosamente');
@@ -197,7 +213,7 @@
         showResponse(data);
 
         if (data.code === 'POS_ALREADY_CONNECTED') {
-          showAlert('ℹ️ El POS ya está conectado');
+          showAlert('El POS ya está conectado');
         } else if (data.code === 'PORT_CONNECT_ERROR') {
           showAlert('❌ Error al conectar el POS. Verifica el cable y el puerto');
         } else {
@@ -207,8 +223,6 @@
   });
 
 </script>
-  
-  
 
 </body>
 </html>

@@ -3,7 +3,7 @@ const responseHandler = require('../utils/responseHandler');
 const autoReconnectPOS = require('../utils/posReconnect');
 const logger = require('../utils/logger');
 
-const POLLING_INTERVAL_MS = 150000; 
+const POLLING_INTERVAL_MS = 600000; // 10 minutos
 
 let monitorActive = false;
 
@@ -11,21 +11,13 @@ async function startPOSMonitor() {
   if (monitorActive) return;
   monitorActive = true;
 
-  logger.info('🔄 Iniciando monitor de salud del POS');
-
   setInterval(async () => {
     try {
       if (!transbankService.deviceConnected) {
-        logger.warn('📉 POS desconectado. Intentando reconexión...');
-        const reconnected = await autoReconnectPOS();
-        if (!reconnected) {
-          logger.error('❌ Falló la reconexión automática del POS');
-        }
-      } else {
-        logger.info('✅ POS saludable y conectado');
+        await autoReconnectPOS();
       }
     } catch (error) {
-      logger.error(`❌ Error durante verificación o reconexión del POS: ${error.message}`);
+      
     }
   }, POLLING_INTERVAL_MS);
 }
@@ -85,20 +77,38 @@ exports.listPorts = async (req, res) => {
 
 exports.conectarPuerto = async (req, res) => {
   try {
-    if (transbankService.deviceConnected && transbankService.connection) {
-      return responseHandler.error(res, 'El POS ya está conectado', 400, 'POS_ALREADY_CONNECTED');
-    }
-
     const portPath = req.body.portPath || process.env.TBK_PORT_PATH;
 
     if (!portPath) {
       return responseHandler.error(res, 'Debe proporcionar un puerto válido', 400, 'MISSING_PORT');
     }
 
-    const result = await transbankService.connectToPort(portPath);
-    responseHandler.success(res, `Conectado al puerto ${portPath}`, result);
+    // 1. Forzar cierre de conexión previa si existe
+    if (transbankService.deviceConnected) {
+      await transbankService.closeConnection();
+      logger.warn(`Conexión previa cerrada forzosamente para reconectar a ${portPath}`);
+    }
+
+    // 2. Intentar reconexión (con reintentos)
+    let retries = 3;
+    let lastError = null;
+
+    while (retries > 0) {
+      try {
+        const result = await transbankService.connectToPort(portPath);
+        return responseHandler.success(res, `Conectado al puerto ${portPath}`, result);
+      } catch (error) {
+        lastError = error;
+        retries--;
+        logger.warn(`Fallo conexión a ${portPath}. Reintentos restantes: ${retries}`, error.message);
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Esperar 1 segundo
+      }
+    }
+
+    // 3. Si falla después de reintentos
+    throw new Error(`No se pudo reconectar a ${portPath}: ${lastError.message}`);
   } catch (error) {
-    logger.error('Error al conectar al puerto especificado:', error);
+    logger.error('Error al conectar al puerto:', error);
     responseHandler.error(res, error.message, 500, 'PORT_CONNECT_ERROR');
   }
 };
