@@ -58,10 +58,10 @@ exports.loadKey = async (req, res) => {
 exports.getLastTransaction = async (req, res) => {
   try {
     const result = await transbankService.getLastTransaction();
-    responseHandler.success(res, 'Última transacción obtenida', result);
+    responseHandler.success(res, result.message, result.data);
   } catch (error) {
-    logger.error('Error obteniendo última transacción:', error);
-    responseHandler.error(res, error.message, 500, error.responseCode || 'UNKNOWN');
+    logger.error('Error:', error);
+    responseHandler.error(res, 'Error al obtener la transacción', 500);
   }
 };
 

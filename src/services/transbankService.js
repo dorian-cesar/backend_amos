@@ -72,43 +72,31 @@ class TransbankService {
   async getLastTransaction() {
     try {
       const response = await this.pos.getLastSale();
-      logger.info(`Última transacción obtenida - Operación: ${response.operationNumber}`);
-      let parsed = null;
-  
-      try {
-        logger.info('RAW RESPONSE de getLastSale:', response.rawResponse);
-        parsed = response.rawResponse ? parseResponse(response.rawResponse) : null;
-      } catch (e) {
-        logger.warn('No se pudo parsear la última transacción:', e.message);
-      }
-  
-      const hasRawData = response.rawResponse && response.rawResponse.trim() !== '';
-  
+      logger.debug('Respuesta completa del POS:', JSON.stringify(response, null, 2));
+      
       return {
         success: true,
-        message: parsed
-          ? 'Última transacción obtenida y parseada correctamente'
-          : (hasRawData ? 'Última transacción obtenida pero no pudo ser parseada' : 'No se obtuvo información de la última transacción'),
+        message: 'Transacción obtenida correctamente',
         data: {
-          raw: response.rawResponse || null,
-          parsed: parsed || null,
-          approved: parsed?.responseCode === '00' || false,
-          responseCode: parsed?.responseCode || 'UNKNOWN',
-          operationNumber: parsed?.operationNumber || response.operationNumber || null,
-          message: parsed?.responseMessage || (hasRawData ? 'Respuesta recibida sin parsear' : 'Sin datos de última venta'),
-          type: parsed?.type || '0210',
-          fields: parsed?.rawFields || {},
-          hasRawData
+          approved: response.successful,
+          responseCode: response.responseCode === 0 ? '00' : 'UNKNOWN',
+          operationNumber: response.operationNumber,
+          amount: response.amount,
+          cardNumber: response.last4Digits ? `••••${response.last4Digits}` : null,
+          authorizationCode: response.authorizationCode,
+          timestamp: response.realDate && response.realTime 
+                    ? `${response.realDate} ${response.realTime}` 
+                    : null,
+          cardType: response.cardType,
+          cardBrand: response.cardBrand,
+          rawData: response // Todos los datos originales por si necesitas algo más
         }
       };
-  
     } catch (error) {
       logger.error('Error al obtener última transacción:', error);
       throw error;
     }
   }
-  
-  
 
   async sendCloseCommand(printReport = true) {
     try {
