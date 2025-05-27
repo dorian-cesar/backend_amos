@@ -77,7 +77,7 @@ exports.listPorts = async (req, res) => {
 
 exports.conectarPuerto = async (req, res) => {
   try {
-    const portPath = req.body.portPath || process.env.TBK_PORT_PATH;
+    const portPath = req.body.portPath || process.env.TBK_PORT_PATH2;
 
     if (!portPath) {
       return responseHandler.error(res, 'Debe proporcionar un puerto válido', 400, 'MISSING_PORT');

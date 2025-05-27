@@ -27,9 +27,9 @@ async function connectToPOS() {
       // 2. Intentar conectar al puerto preferido
       const preferredPort = process.env.TBK_PORT_PATH;
       try {
-        const port = await transbankService.connectToPort(preferredPort);
-        logger.info(`POS conectado a puerto preferido: ${port.path}`);
-        connected = true;
+        await transbankService.connectToPort(preferredPort);
+        logger.info(`POS conectado a puerto preferido: ${preferredPort}`);
+        connected = true;      
       } catch (initialError) {
         logger.warn(`No se pudo conectar a puerto preferido (${preferredPort}): ${initialError.message}`);
         
@@ -38,7 +38,7 @@ async function connectToPOS() {
         const acmPorts = allPorts.filter(p => p.path.includes('ACM'));
 
         for (const port of acmPorts) {
-          if (port.path === preferredPort) continue; // Ya probamos este
+          if (port.path === preferredPort) continue;
           try {
             const result = await transbankService.connectToPort(port.path);
             logger.info(`POS conectado a puerto alternativo: ${port.path}`);
@@ -51,9 +51,7 @@ async function connectToPOS() {
       }
 
       // 4. Si se conectó, cargar llaves
-      if (connected) {
-        logger.info(`Commerce Code: ${process.env.TBK_COMMERCE_CODE}`);
-        logger.info(`Terminal ID: ${process.env.TBK_TERMINAL_ID}`);
+      if (connected) {     
         await transbankService.loadKey();
         logger.info('🔐 Llaves cargadas exitosamente');
         await terminalController.startPOSMonitor();
@@ -94,43 +92,6 @@ async function startServer() {
       
       // Iniciar proceso de conexión al POS (con reintentos)
       await connectToPOS();
-    });
-
-    // Rutas de diagnóstico y control
-    app.get('/api/terminal/ports', async (req, res) => {
-      try {
-        const ports = await transbankService.listAvailablePorts();
-        res.status(200).json({
-          status: 'success',
-          ports: ports.map(port => ({
-            ...port,
-            isCurrent: transbankService.connection?.path === port.path,
-            recommended: port.manufacturer?.includes('Pax') || port.path.includes('ACM')
-          })),
-          baudRate: process.env.TBK_BAUD_RATE
-        });
-      } catch (error) {
-        logger.error('Error al listar puertos:', error.message);
-        res.status(500).json({ status: 'error', message: 'No se pudieron listar los puertos', code: 'PORTS_LIST_ERROR' });
-      }
-    });
-
-    app.post('/api/terminal/connect', async (req, res) => {
-      try {
-        const port = await transbankService.connectToPort(process.env.TBK_PORT_PATH);
-        res.status(200).json({ status: 'success', message: `Reconectado a POS en ${port.path}`, port: port.path });
-      } catch (error) {
-        res.status(500).json({ status: 'error', message: error.message, code: 'RECONNECT_ERROR' });
-      }
-    });
-
-    app.get('/api/terminal/status', (req, res) => {
-      res.status(200).json({
-        status: 'success',
-        connected: transbankService.deviceConnected,
-        port: transbankService.connection?.path,
-        message: transbankService.deviceConnected ? 'POS operativo' : 'POS desconectado'
-      });
     });
 
     // Apagado elegante
