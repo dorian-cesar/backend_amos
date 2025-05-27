@@ -158,19 +158,6 @@
       });
   });
   
-  // Botón Get Totals
-  $('#btnGetTotals').click(() => {
-    axios.get(`${baseURL}/api/terminal/totals`)
-      .then(res => {
-        showResponse(res.data);
-        showAlert('Totales consultados correctamente');
-      })
-      .catch(err => {
-        showResponse(err.response ? err.response.data : err);
-        showAlert('Error al consultar totales');
-      });
-  });
-  
   // Botón Desconectar
   $('#btnDesconectar').click(() => {
     axios.post(`${baseURL}/api/terminal/release-port`)
