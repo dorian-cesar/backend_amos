@@ -77,39 +77,36 @@ exports.listPorts = async (req, res) => {
 
 exports.conectarPuerto = async (req, res) => {
   try {
-    const portPath = req.body.portPath || process.env.TBK_PORT_PATH2;
+    const portPath = req.body.portPath || process.env.TBK_PORT_PATH;
 
     if (!portPath) {
       return responseHandler.error(res, 'Debe proporcionar un puerto válido', 400, 'MISSING_PORT');
     }
 
-    // 1. Forzar cierre de conexión previa si existe
+    // Cerrar conexión existente si hay una
     if (transbankService.deviceConnected) {
       await transbankService.closeConnection();
-      logger.warn(`Conexión previa cerrada forzosamente para reconectar a ${portPath}`);
     }
 
-    // 2. Intentar reconexión (con reintentos)
-    let retries = 3;
-    let lastError = null;
-
-    while (retries > 0) {
-      try {
-        const result = await transbankService.connectToPort(portPath);
-        return responseHandler.success(res, `Conectado al puerto ${portPath}`, result);
-      } catch (error) {
-        lastError = error;
-        retries--;
-        logger.warn(`Fallo conexión a ${portPath}. Reintentos restantes: ${retries}`, error.message);
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Esperar 1 segundo
-      }
-    }
-
-    // 3. Si falla después de reintentos
-    throw new Error(`No se pudo reconectar a ${portPath}: ${lastError.message}`);
+    // Intentar conexión directa
+    const result = await transbankService.connectToPort(portPath);
+    responseHandler.success(res, `Conectado al puerto ${portPath}`, result);
+    
   } catch (error) {
     logger.error('Error al conectar al puerto:', error);
-    responseHandler.error(res, error.message, 500, 'PORT_CONNECT_ERROR');
+    
+    let errorCode = 'PORT_CONNECT_ERROR';
+    let userMessage = error.message;
+    
+    if (error.message.includes('permission denied')) {
+      errorCode = 'PORT_PERMISSION_DENIED';
+      userMessage = 'Error de permisos en el puerto. Contacte al administrador';
+    } else if (error.message.includes('not found')) {
+      errorCode = 'PORT_NOT_FOUND';
+      userMessage = 'Puerto no encontrado. Verifique la conexión física del POS';
+    }
+    
+    responseHandler.error(res, userMessage, 500, errorCode);
   }
 };
 

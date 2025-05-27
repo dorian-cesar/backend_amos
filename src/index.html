@@ -183,32 +183,138 @@
         showAlert('Error al desconectar POS');
       });
   });
+
+// Botón Conectar
+$('#btnConnect').click(async () => {
+  const MAX_RETRIES = 3;
+  const RETRY_DELAY = 2000;
+  const PREFERRED_PORT = "/dev/ttyACM0";
   
-  // Botón Conectar
-  $('#btnConnect').click(() => {
-    // Define el puerto al que deseas conectarte (puedes obtenerlo dinámicamente si es necesario)
-    const portPath = "/dev/ttyACM0";
+  try {
+    // UI Feedback inicial
+    $('#btnConnect').prop('disabled', true)
+                   .html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Verificando...');
 
-    axios.post(`${baseURL}/api/terminal/connect`, { portPath })
-      .then(res => {
-        showResponse(res.data);
-        showAlert('✅ POS conectado exitosamente');
-      })
-      .catch(err => {
-        const data = err.response?.data || {};
+    // 0. Verificar estado actual usando el mismo endpoint que Poll
+    const statusResponse = await axios.get(`${baseURL}/api/terminal/status`);
+    
+    if (statusResponse.data.data?.connected) {
+      showResponse(statusResponse.data);
+      showAlert('ℹ️ El POS ya está conectado en ' + statusResponse.data.data.port);
+      updateConnectionStatus(true);
+      return;
+    }
 
-        showResponse(data);
-
-        if (data.code === 'POS_ALREADY_CONNECTED') {
-          showAlert('El POS ya está conectado');
-        } else if (data.code === 'PORT_CONNECT_ERROR') {
-          showAlert('❌ Error al conectar el POS. Verifica el cable y el puerto');
-        } else {
-          showAlert('⚠️ Error desconocido al intentar conectar');
+    // Cambiar mensaje UI a "Conectando..."
+    $('#btnConnect').html('<span class="spinner-border spinner-border-sm"></span> Conectando...');
+    
+    let connected = false;
+    let lastError = null;
+    
+    // 1. Primero intentar desconectar cualquier conexión residual
+    try {
+      await axios.post(`${baseURL}/api/terminal/release-port`);
+      console.log('Conexión previa cerrada antes de reintentar');
+    } catch (disconnectError) {
+      console.warn('No se pudo cerrar conexión previa:', disconnectError.message);
+    }
+    
+    // 2. Intentar conectar con reintentos
+    for (let attempt = 1; attempt <= MAX_RETRIES && !connected; attempt++) {
+      try {
+        const response = await axios.post(`${baseURL}/api/terminal/connect`, { 
+          portPath: PREFERRED_PORT,
+          retryCount: MAX_RETRIES - attempt
+        });
+        
+        // Verificar conexión usando el mismo endpoint que Poll
+        const verifyResponse = await axios.get(`${baseURL}/api/terminal/status`);
+        if (verifyResponse.data.data?.connected) {
+          connected = true;
+          showResponse(verifyResponse.data);
+          showAlert('✅ POS conectado exitosamente en ' + verifyResponse.data.data.port);
+          updateConnectionStatus(true);
+          return;
         }
-      });
-  });
+      } catch (error) {
+        lastError = error;
+        $('#btnConnect').html(`<span class="spinner-border spinner-border-sm"></span> Intento ${attempt} de ${MAX_RETRIES}...`);
+        if (attempt < MAX_RETRIES) await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
+      }
+    }
+    
+    // 3. Si falla con puerto preferido, probar puertos alternativos
+    if (!connected) {
+      try {
+        const portsResponse = await axios.get(`${baseURL}/api/terminal/available-ports`);
+        const acmPorts = portsResponse.data.ports?.filter(p => p.path.includes('ACM') && p.path !== PREFERRED_PORT) || [];
+        
+        for (const port of acmPorts) {
+          try {
+            await axios.post(`${baseURL}/api/terminal/connect`, { portPath: port.path });
+            const verifyResponse = await axios.get(`${baseURL}/api/terminal/status`);
+            if (verifyResponse.data.data?.connected) {
+              connected = true;
+              showResponse(verifyResponse.data);
+              showAlert(`✅ POS conectado a puerto alternativo: ${port.path}`);
+              updateConnectionStatus(true);
+              return;
+            }
+          } catch (altError) {
+            lastError = altError;
+          }
+        }
+      } catch (portsError) {
+        lastError = portsError;
+      }
+    }
+    
+    // 4. Manejo de errores final
+    if (!connected) {
+      const errorData = lastError?.response?.data || {
+        message: lastError?.message || 'Error desconocido al conectar',
+        code: 'CONNECTION_FAILED'
+      };
+      
+      showResponse(errorData);
+      
+      let errorMsg = 'Error al conectar POS';
+      if (lastError?.message?.includes('Could not open serial connection')) {
+        errorMsg = '❌ No se pudo abrir conexión serial. Verifique:';
+        errorMsg += '\n1. El POS está encendido';
+        errorMsg += '\n2. El cable USB está bien conectado';
+        errorMsg += '\n3. El puerto no está siendo usado por otra aplicación';
+      } else if (lastError?.message?.includes('permisos')) {
+        errorMsg = '❌ Error de permisos. Ejecute: sudo chmod 666 /dev/ttyACM*';
+      }
+      
+      showAlert(errorMsg);
+      updateConnectionStatus(false);
+    }
+  } catch (finalError) {
+    showResponse(finalError.response?.data || finalError);
+    showAlert('⚠️ Error crítico al intentar conectar');
+    updateConnectionStatus(false);
+  } finally {
+    $('#btnConnect').prop('disabled', false).text('Conectar POS');
+  }
+});
 
+// Función auxiliar para actualizar el estado de conexión en la UI
+function updateConnectionStatus(isConnected) {
+  // Habilitar/deshabilitar otros controles según el estado
+  $('.pos-control').prop('disabled', !isConnected);
+  
+  // Puedes agregar más lógica de UI aquí si es necesario
+  // Por ejemplo, cambiar el color del botón de conexión
+  if (isConnected) {
+    $('#btnConnect').removeClass('btn-secondary').addClass('btn-success');
+    $('#btnDesconectar').removeClass('btn-danger').addClass('btn-secondary');
+  } else {
+    $('#btnConnect').removeClass('btn-success').addClass('btn-secondary');
+    $('#btnDesconectar').removeClass('btn-secondary').addClass('btn-danger');
+  }
+}
 </script>
 
 </body>
