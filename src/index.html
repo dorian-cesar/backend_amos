@@ -35,11 +35,7 @@
 
     <div class="col-md-4">
       <button id="btnGetLastSale" class="btn btn-info w-100">Get Last Sale</button>
-    </div>
-
-    <div class="col-md-4">
-      <button id="btnGetTotals" class="btn btn-info w-100">Get Totals</button>
-    </div>
+    </div>    
 
     <div class="col-md-4">
       <button id="btnDesconectar" class="btn btn-danger w-100">Desconectar POS</button>
@@ -171,114 +167,114 @@
       });
   });
 
-$('#btnConnect').click(async () => {
-  const MAX_RETRIES = 3;
-  const RETRY_DELAY = 2000;
-  const PREFERRED_PORTS = ["/dev/ttyACM0", "/dev/ttyACM1"];
-  const RESET_DELAY = 5000; // Tiempo para resetear completamente
-  
-  try {
-    // UI Feedback inicial
-    $('#btnConnect').prop('disabled', true)
-                   .html('<span class="spinner-border spinner-border-sm"></span> Verificando...');
-
-    // 1. Verificar estado actual
-    const statusResponse = await axios.get(`${baseURL}/api/terminal/status`);
+  $('#btnConnect').click(async () => {
+    const MAX_RETRIES = 3;
+    const RETRY_DELAY = 2000;
+    const PREFERRED_PORTS = ["/dev/ttyACM0", "/dev/ttyACM1"];
+    const RESET_DELAY = 5000; // Tiempo para resetear completamente
     
-    if (statusResponse.data.data?.connected) {
-      showResponse(statusResponse.data);
-      showAlert('ℹ️ El POS ya está conectado en ' + statusResponse.data.data.port);
-      updateConnectionStatus(true);
-      return;
-    }
-
-    // 2. Liberar puerto y esperar un reset completo
-    $('#btnConnect').html('<span class="spinner-border spinner-border-sm"></span> Liberando puerto...');
     try {
-      await axios.post(`${baseURL}/api/terminal/release-port`);
-      console.log('Puerto liberado, esperando reset...');
-      await new Promise(resolve => setTimeout(resolve, RESET_DELAY));
-    } catch (disconnectError) {
-      console.warn('No se pudo cerrar conexión previa:', disconnectError.message);
-    }
+      // UI Feedback inicial
+      $('#btnConnect').prop('disabled', true)
+                    .html('<span class="spinner-border spinner-border-sm"></span> Verificando...');
 
-    // 3. Intentar conexión en puertos preferidos
-    let connected = false;
-    let lastError = null;
-    
-    for (const port of PREFERRED_PORTS) {
-      if (connected) break;
+      // 1. Verificar estado actual
+      const statusResponse = await axios.get(`${baseURL}/api/terminal/status`);
       
-      for (let attempt = 1; attempt <= MAX_RETRIES && !connected; attempt++) {
-        try {
-          $('#btnConnect').html(`<span class="spinner-border spinner-border-sm"></span> Conectando a ${port} (${attempt}/${MAX_RETRIES})...`);
-          
-          // Intento de conexión con timeout reducido
-          const response = await axios.post(`${baseURL}/api/terminal/connect`, { 
-            portPath: port,
-            retryCount: 0, // No reintentos internos
-            timeout: 1500  // Timeout más corto
-          });
-          
-          // Verificación robusta
-          const verifyResponse = await axios.get(`${baseURL}/api/terminal/status`, { timeout: 2000 });
-          if (verifyResponse.data.data?.connected) {
-            connected = true;
-            showResponse(verifyResponse.data);
-            showAlert(`✅ POS conectado en ${verifyResponse.data.data.port}`);
-            updateConnectionStatus(true);
-            break;
+      if (statusResponse.data.data?.connected) {
+        showResponse(statusResponse.data);
+        showAlert('ℹ️ El POS ya está conectado en ' + statusResponse.data.data.port);
+        updateConnectionStatus(true);
+        return;
+      }
+
+      // 2. Liberar puerto y esperar un reset completo
+      $('#btnConnect').html('<span class="spinner-border spinner-border-sm"></span> Liberando puerto...');
+      try {
+        await axios.post(`${baseURL}/api/terminal/release-port`);
+        console.log('Puerto liberado, esperando reset...');
+        await new Promise(resolve => setTimeout(resolve, RESET_DELAY));
+      } catch (disconnectError) {
+        console.warn('No se pudo cerrar conexión previa:', disconnectError.message);
+      }
+
+      // 3. Intentar conexión en puertos preferidos
+      let connected = false;
+      let lastError = null;
+      
+      for (const port of PREFERRED_PORTS) {
+        if (connected) break;
+        
+        for (let attempt = 1; attempt <= MAX_RETRIES && !connected; attempt++) {
+          try {
+            $('#btnConnect').html(`<span class="spinner-border spinner-border-sm"></span> Conectando a ${port} (${attempt}/${MAX_RETRIES})...`);
+            
+            // Intento de conexión con timeout reducido
+            const response = await axios.post(`${baseURL}/api/terminal/connect`, { 
+              portPath: port,
+              retryCount: 0, // No reintentos internos
+              timeout: 1500  // Timeout más corto
+            });
+            
+            // Verificación robusta
+            const verifyResponse = await axios.get(`${baseURL}/api/terminal/status`, { timeout: 2000 });
+            if (verifyResponse.data.data?.connected) {
+              connected = true;
+              showResponse(verifyResponse.data);
+              showAlert(`✅ POS conectado en ${verifyResponse.data.data.port}`);
+              updateConnectionStatus(true);
+              break;
+            }
+          } catch (error) {
+            lastError = error;
+            console.error(`Intento ${attempt} en ${port} falló:`, error.message);
+            
+            // Reset adicional después de cierto número de intentos
+            if (attempt % 2 === 0) {
+              await axios.post(`${baseURL}/api/terminal/release-port`).catch(() => {});
+              await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+            
+            if (attempt < MAX_RETRIES) await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
           }
-        } catch (error) {
-          lastError = error;
-          console.error(`Intento ${attempt} en ${port} falló:`, error.message);
-          
-          // Reset adicional después de cierto número de intentos
-          if (attempt % 2 === 0) {
-            await axios.post(`${baseURL}/api/terminal/release-port`).catch(() => {});
-            await new Promise(resolve => setTimeout(resolve, 1000));
-          }
-          
-          if (attempt < MAX_RETRIES) await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
         }
       }
+
+      // 4. Manejo de fallo final
+      if (!connected) {
+        const errorMsg = buildDetailedError(lastError);
+        showAlert(errorMsg);
+        updateConnectionStatus(false);
+      }
+    } catch (finalError) {
+      console.error('Error crítico:', finalError);
+      showAlert('⚠️ Error crítico: ' + (finalError.response?.data?.message || finalError.message));
+    } finally {
+      $('#btnConnect').prop('disabled', false).text('Conectar POS');
     }
+  });
 
-    // 4. Manejo de fallo final
-    if (!connected) {
-      const errorMsg = buildDetailedError(lastError);
-      showAlert(errorMsg);
-      updateConnectionStatus(false);
+  function buildDetailedError(error) {
+    let errorMsg = '❌ Error al conectar POS:\n';  
+    errorMsg += 'Desconectar y volver a conectar el cable USB\n';  
+    return errorMsg;
+  }
+
+  // Función auxiliar para actualizar el estado de conexión en la UI
+  function updateConnectionStatus(isConnected) {
+    // Habilitar/deshabilitar otros controles según el estado
+    $('.pos-control').prop('disabled', !isConnected);
+    
+    // Puedes agregar más lógica de UI aquí si es necesario
+    // Por ejemplo, cambiar el color del botón de conexión
+    if (isConnected) {
+      $('#btnConnect').removeClass('btn-secondary').addClass('btn-success');
+      $('#btnDesconectar').removeClass('btn-danger').addClass('btn-secondary');
+    } else {
+      $('#btnConnect').removeClass('btn-success').addClass('btn-secondary');
+      $('#btnDesconectar').removeClass('btn-secondary').addClass('btn-danger');
     }
-  } catch (finalError) {
-    console.error('Error crítico:', finalError);
-    showAlert('⚠️ Error crítico: ' + (finalError.response?.data?.message || finalError.message));
-  } finally {
-    $('#btnConnect').prop('disabled', false).text('Conectar POS');
   }
-});
-
-function buildDetailedError(error) {
-  let errorMsg = '❌ Error al conectar POS:\n';  
-  errorMsg += 'Desconectar y volver a conectar el cable USB\n';  
-  return errorMsg;
-}
-
-// Función auxiliar para actualizar el estado de conexión en la UI
-function updateConnectionStatus(isConnected) {
-  // Habilitar/deshabilitar otros controles según el estado
-  $('.pos-control').prop('disabled', !isConnected);
-  
-  // Puedes agregar más lógica de UI aquí si es necesario
-  // Por ejemplo, cambiar el color del botón de conexión
-  if (isConnected) {
-    $('#btnConnect').removeClass('btn-secondary').addClass('btn-success');
-    $('#btnDesconectar').removeClass('btn-danger').addClass('btn-secondary');
-  } else {
-    $('#btnConnect').removeClass('btn-success').addClass('btn-secondary');
-    $('#btnDesconectar').removeClass('btn-secondary').addClass('btn-danger');
-  }
-}
 </script>
 
 </body>
