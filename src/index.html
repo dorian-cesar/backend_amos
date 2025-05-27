@@ -184,18 +184,18 @@
       });
   });
 
-// Botón Conectar
 $('#btnConnect').click(async () => {
   const MAX_RETRIES = 3;
   const RETRY_DELAY = 2000;
-  const PREFERRED_PORT = "/dev/ttyACM0";
+  const PREFERRED_PORTS = ["/dev/ttyACM0", "/dev/ttyACM1"];
+  const RESET_DELAY = 5000; // Tiempo para resetear completamente
   
   try {
     // UI Feedback inicial
     $('#btnConnect').prop('disabled', true)
-                   .html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Verificando...');
+                   .html('<span class="spinner-border spinner-border-sm"></span> Verificando...');
 
-    // 0. Verificar estado actual usando el mismo endpoint que Poll
+    // 1. Verificar estado actual
     const statusResponse = await axios.get(`${baseURL}/api/terminal/status`);
     
     if (statusResponse.data.data?.connected) {
@@ -205,100 +205,77 @@ $('#btnConnect').click(async () => {
       return;
     }
 
-    // Cambiar mensaje UI a "Conectando..."
-    $('#btnConnect').html('<span class="spinner-border spinner-border-sm"></span> Conectando...');
-    
-    let connected = false;
-    let lastError = null;
-    
-    // 1. Primero intentar desconectar cualquier conexión residual
+    // 2. Liberar puerto y esperar un reset completo
+    $('#btnConnect').html('<span class="spinner-border spinner-border-sm"></span> Liberando puerto...');
     try {
       await axios.post(`${baseURL}/api/terminal/release-port`);
-      console.log('Conexión previa cerrada antes de reintentar');
+      console.log('Puerto liberado, esperando reset...');
+      await new Promise(resolve => setTimeout(resolve, RESET_DELAY));
     } catch (disconnectError) {
       console.warn('No se pudo cerrar conexión previa:', disconnectError.message);
     }
+
+    // 3. Intentar conexión en puertos preferidos
+    let connected = false;
+    let lastError = null;
     
-    // 2. Intentar conectar con reintentos
-    for (let attempt = 1; attempt <= MAX_RETRIES && !connected; attempt++) {
-      try {
-        const response = await axios.post(`${baseURL}/api/terminal/connect`, { 
-          portPath: PREFERRED_PORT,
-          retryCount: MAX_RETRIES - attempt
-        });
-        
-        // Verificar conexión usando el mismo endpoint que Poll
-        const verifyResponse = await axios.get(`${baseURL}/api/terminal/status`);
-        if (verifyResponse.data.data?.connected) {
-          connected = true;
-          showResponse(verifyResponse.data);
-          showAlert('✅ POS conectado exitosamente en ' + verifyResponse.data.data.port);
-          updateConnectionStatus(true);
-          return;
-        }
-      } catch (error) {
-        lastError = error;
-        $('#btnConnect').html(`<span class="spinner-border spinner-border-sm"></span> Intento ${attempt} de ${MAX_RETRIES}...`);
-        if (attempt < MAX_RETRIES) await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
-      }
-    }
-    
-    // 3. Si falla con puerto preferido, probar puertos alternativos
-    if (!connected) {
-      try {
-        const portsResponse = await axios.get(`${baseURL}/api/terminal/available-ports`);
-        const acmPorts = portsResponse.data.ports?.filter(p => p.path.includes('ACM') && p.path !== PREFERRED_PORT) || [];
-        
-        for (const port of acmPorts) {
-          try {
-            await axios.post(`${baseURL}/api/terminal/connect`, { portPath: port.path });
-            const verifyResponse = await axios.get(`${baseURL}/api/terminal/status`);
-            if (verifyResponse.data.data?.connected) {
-              connected = true;
-              showResponse(verifyResponse.data);
-              showAlert(`✅ POS conectado a puerto alternativo: ${port.path}`);
-              updateConnectionStatus(true);
-              return;
-            }
-          } catch (altError) {
-            lastError = altError;
+    for (const port of PREFERRED_PORTS) {
+      if (connected) break;
+      
+      for (let attempt = 1; attempt <= MAX_RETRIES && !connected; attempt++) {
+        try {
+          $('#btnConnect').html(`<span class="spinner-border spinner-border-sm"></span> Conectando a ${port} (${attempt}/${MAX_RETRIES})...`);
+          
+          // Intento de conexión con timeout reducido
+          const response = await axios.post(`${baseURL}/api/terminal/connect`, { 
+            portPath: port,
+            retryCount: 0, // No reintentos internos
+            timeout: 1500  // Timeout más corto
+          });
+          
+          // Verificación robusta
+          const verifyResponse = await axios.get(`${baseURL}/api/terminal/status`, { timeout: 2000 });
+          if (verifyResponse.data.data?.connected) {
+            connected = true;
+            showResponse(verifyResponse.data);
+            showAlert(`✅ POS conectado en ${verifyResponse.data.data.port}`);
+            updateConnectionStatus(true);
+            break;
           }
+        } catch (error) {
+          lastError = error;
+          console.error(`Intento ${attempt} en ${port} falló:`, error.message);
+          
+          // Reset adicional después de cierto número de intentos
+          if (attempt % 2 === 0) {
+            await axios.post(`${baseURL}/api/terminal/release-port`).catch(() => {});
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          }
+          
+          if (attempt < MAX_RETRIES) await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
         }
-      } catch (portsError) {
-        lastError = portsError;
       }
     }
-    
-    // 4. Manejo de errores final
+
+    // 4. Manejo de fallo final
     if (!connected) {
-      const errorData = lastError?.response?.data || {
-        message: lastError?.message || 'Error desconocido al conectar',
-        code: 'CONNECTION_FAILED'
-      };
-      
-      showResponse(errorData);
-      
-      let errorMsg = 'Error al conectar POS';
-      if (lastError?.message?.includes('Could not open serial connection')) {
-        errorMsg = '❌ No se pudo abrir conexión serial. Verifique:';
-        errorMsg += '\n1. El POS está encendido';
-        errorMsg += '\n2. El cable USB está bien conectado';
-        errorMsg += '\n3. El puerto no está siendo usado por otra aplicación';
-      } else if (lastError?.message?.includes('permisos')) {
-        errorMsg = '❌ Error de permisos. Ejecute: sudo chmod 666 /dev/ttyACM*';
-      }
-      
+      const errorMsg = buildDetailedError(lastError);
       showAlert(errorMsg);
       updateConnectionStatus(false);
     }
   } catch (finalError) {
-    showResponse(finalError.response?.data || finalError);
-    showAlert('⚠️ Error crítico al intentar conectar');
-    updateConnectionStatus(false);
+    console.error('Error crítico:', finalError);
+    showAlert('⚠️ Error crítico: ' + (finalError.response?.data?.message || finalError.message));
   } finally {
     $('#btnConnect').prop('disabled', false).text('Conectar POS');
   }
 });
+
+function buildDetailedError(error) {
+  let errorMsg = '❌ Error al conectar POS:\n';  
+  errorMsg += 'Desconectar y volver a conectar el cable USB\n';  
+  return errorMsg;
+}
 
 // Función auxiliar para actualizar el estado de conexión en la UI
 function updateConnectionStatus(isConnected) {
