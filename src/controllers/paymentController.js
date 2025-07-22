@@ -27,8 +27,8 @@ exports.processPayment = function (req, res) {
       var messageLower = (error.message || '').toLowerCase();
       var isUserCancelled = messageLower.indexOf('cancelada') !== -1 || messageLower.indexOf('cancelado') !== -1;
       var isPosDisconnected = messageLower.indexOf('no se pudo conectar') !== -1 ||
-        messageLower.indexOf('pos no conectado') !== -1 ||
-        messageLower.indexOf('pos desconectado') !== -1;
+                              messageLower.indexOf('pos no conectado') !== -1 ||
+                              messageLower.indexOf('pos desconectado') !== -1;
 
       var statusCode = (isUserCancelled || isPosDisconnected) ? 400 : 500;
       var errorCode = 'UNKNOWN';
