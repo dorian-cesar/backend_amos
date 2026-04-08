@@ -12,25 +12,25 @@ const transbankService = require("./services/transbankService");
 const app = express();
 
 // Middleware CORS según entorno
-// var corsOptions =
-//   process.env.NODE_ENV === "development"
-//     ? {
-//         origin: "*",
-//         methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-//         allowedHeaders: ["Content-Type", "Authorization"],
-//         credentials: false,
-//       }
-//     : {
-//         origin: (process.env.ALLOWED_ORIGINS || "").split(","),
-//         credentials: true,
-//       };
+var corsOptions =
+  process.env.NODE_ENV === "development"
+    ? {
+        origin: "*",
+        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allowedHeaders: ["Content-Type", "Authorization"],
+        credentials: false,
+      }
+    : {
+        origin: (process.env.ALLOWED_ORIGINS || "").split(","),
+        credentials: true,
+      };
 
-var corsOptions = {
-  origin: "*",
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: false,
-};
+// var corsOptions = {
+//   origin: "*",
+//   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+//   allowedHeaders: ["Content-Type", "Authorization"],
+//   credentials: false,
+// };
 
 app.use(cors(corsOptions));
 
